@@ -35,11 +35,9 @@ namespace Infrastructure.Configurations
             builder.Property(c => c.CreatedAt)
                 .IsRequired();
 
-            // Create unique index for Key to prevent duplicates
             builder.HasIndex(c => c.Key)
                 .IsUnique();
 
-            // Create index for efficient ordering queries
             builder.HasIndex(c => new { c.IsActive, c.DisplayOrder });
         }
     }

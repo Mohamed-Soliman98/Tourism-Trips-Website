@@ -32,9 +32,6 @@ namespace Api.Controllers.Bookings
             _deleteBookingInquiryService = deleteBookingInquiryService;
         }
 
-        /// <summary>
-        /// Public – Submit a booking inquiry.
-        /// </summary>
         [HttpPost]
         [AllowAnonymous]
         [EnableRateLimiting("BookingInquiryPolicy")]
@@ -50,9 +47,6 @@ namespace Api.Controllers.Bookings
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
-        /// <summary>
-        /// Admin – Get paginated, filtered list of booking inquiries.
-        /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<BookingInquirySummaryDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -66,9 +60,6 @@ namespace Api.Controllers.Bookings
             return Ok(result);
         }
 
-        /// <summary>
-        /// Admin – Get a single booking inquiry by Id.
-        /// </summary>
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(BookingInquiryDetailDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -82,9 +73,6 @@ namespace Api.Controllers.Bookings
             return Ok(result);
         }
 
-        /// <summary>
-        /// Admin – Update booking inquiry status and/or internal notes.
-        /// </summary>
         [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(BookingInquiryUpdatedResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -100,9 +88,6 @@ namespace Api.Controllers.Bookings
             return Ok(result);
         }
 
-        /// <summary>
-        /// Admin – Delete a booking inquiry.
-        /// </summary>
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(typeof(BookingInquiryDeletedResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

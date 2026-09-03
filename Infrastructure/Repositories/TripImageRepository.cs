@@ -39,7 +39,6 @@ namespace Infrastructure.Repositories
             Guid tripId,
             CancellationToken cancellationToken = default)
         {
-            // Returns tracked entities so changes will be persisted
             return await _dbSet
                 .Where(i => i.TripId == tripId && i.IsCover)
                 .ToListAsync(cancellationToken);

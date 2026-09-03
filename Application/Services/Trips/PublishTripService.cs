@@ -23,13 +23,11 @@ namespace Application.Services.Trips
                 throw new KeyNotFoundException($"Trip with ID {tripId} not found.");
             }
 
-            // Check if trip is already published
             if (trip.Status == TripStatus.Active)
             {
                 throw new InvalidOperationException("Trip is already published.");
             }
 
-            // Publish the trip: Draft → Active
             trip.Status = TripStatus.Active;
             trip.UpdatedAt = DateTime.UtcNow;
 

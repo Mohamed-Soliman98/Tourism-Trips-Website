@@ -30,10 +30,8 @@ namespace Application.Services.Trips
             UpdateTripDto dto,
             CancellationToken cancellationToken = default)
         {
-            // 1. Validate DTO
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            // 2. Validate related entity existence
             if (!await _unitOfWork.Categories.ExistsAndIsActiveAsync(dto.CategoryId, cancellationToken))
             {
                 throw new ArgumentException("Category does not exist or is inactive.");
@@ -49,13 +47,11 @@ namespace Application.Services.Trips
                 throw new ArgumentException("Tour type does not exist or is inactive.");
             }
 
-            // 3. Validate Slug uniqueness (excluding current trip)
             if (await _unitOfWork.Trips.ExistsBySlugOtherThanIdAsync(dto.Slug, id, cancellationToken))
             {
                 throw new InvalidOperationException("Trip slug already exists for another trip.");
             }
 
-            // 4. Load existing Trip with tracking
             var trip = await _unitOfWork.Trips.GetByIdForUpdateAsync(id, cancellationToken);
             if (trip == null)
             {
@@ -69,13 +65,11 @@ namespace Application.Services.Trips
 
             try
             {
-                // 5. Handle Cover Image replacement → Convert to TripImage with IsCover=true
                 if (dto.CoverImage != null)
                 {
                     var newCoverPath = await _fileStorage.SaveAsync(dto.CoverImage, "trips", cancellationToken);
                     newlyUploadedFiles.Add(newCoverPath);
 
-                    // Remove old cover from gallery if it exists
                     var oldCover = trip.Images.FirstOrDefault(i => i.IsCover);
                     if (oldCover != null)
                     {
@@ -83,7 +77,6 @@ namespace Application.Services.Trips
                         trip.Images.Remove(oldCover);
                     }
 
-                    // Add new cover as TripImage
                     trip.Images.Add(new TripImage
                     {
                         Id = Guid.NewGuid(),
@@ -97,7 +90,6 @@ namespace Application.Services.Trips
                 }
                 else if (dto.CoverImageAltText != null)
                 {
-                    // Update alt text for existing cover
                     var existingCover = trip.Images.FirstOrDefault(i => i.IsCover);
                     if (existingCover != null)
                     {
@@ -106,7 +98,6 @@ namespace Application.Services.Trips
                     }
                 }
 
-                // 6. Handle Og Image replacement
                 if (dto.OgImage != null)
                 {
                     var newOgPath = await _fileStorage.SaveAsync(dto.OgImage, "trips", cancellationToken);
@@ -120,10 +111,8 @@ namespace Application.Services.Trips
                     trip.OgImage = newOgPath;
                 }
 
-                // 7. Handle Gallery Images replacement
                 if (dto.GalleryImages != null && dto.GalleryImages.Count > 0)
                 {
-                    // Remove old non-cover gallery images
                     var oldGalleryImages = trip.Images.Where(i => !i.IsCover).ToList();
                     foreach (var img in oldGalleryImages)
                     {
@@ -134,7 +123,6 @@ namespace Application.Services.Trips
                         trip.Images.Remove(img);
                     }
 
-                    // Add new gallery images (starting at DisplayOrder 0)
                     for (int i = 0; i < dto.GalleryImages.Count; i++)
                     {
                         var imageFile = dto.GalleryImages[i];
@@ -154,7 +142,6 @@ namespace Application.Services.Trips
                     }
                 }
 
-                // 8. Update Scalar Fields
                 trip.Title = dto.Title;
                 trip.Slug = dto.Slug.ToLowerInvariant();
                 trip.Status = dto.Status;
@@ -177,7 +164,6 @@ namespace Application.Services.Trips
                 trip.TourTypeId = dto.TourTypeId;
                 trip.UpdatedAt = DateTime.UtcNow;
 
-                // 9. Update Itinerary Items
                 trip.ItineraryItems.Clear();
                 foreach (var item in dto.ItineraryItems)
                 {
@@ -191,7 +177,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 10. Update Includes
                 trip.Includes.Clear();
                 foreach (var item in dto.Includes)
                 {
@@ -203,7 +188,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 11. Update Excludes
                 trip.Excludes.Clear();
                 foreach (var item in dto.Excludes)
                 {
@@ -215,7 +199,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 12. Update FAQs and FAQ Translations
                 trip.FAQs.Clear();
                 foreach (var faqDto in dto.FAQs)
                 {
@@ -244,7 +227,6 @@ namespace Application.Services.Trips
                     trip.FAQs.Add(faq);
                 }
 
-                // 13. Update Trip Translations
                 trip.Translations.Clear();
                 foreach (var tr in dto.Translations)
                 {
@@ -261,11 +243,9 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 14. Save changes and commit transaction
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
-                // 15. Post-commit physical file deletion of old replaced files
                 foreach (var oldFile in oldFilesToDelete)
                 {
                     await _fileStorage.DeleteAsync(oldFile);
@@ -280,7 +260,6 @@ namespace Application.Services.Trips
             {
                 await transaction.RollbackAsync(cancellationToken);
 
-                // Clean up newly uploaded files on transaction failure
                 foreach (var file in newlyUploadedFiles)
                 {
                     await _fileStorage.DeleteAsync(file);

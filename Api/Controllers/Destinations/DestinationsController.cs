@@ -80,9 +80,6 @@ namespace Api.Controllers.Destinations
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get all active destinations for website navigation and filters.
-        /// </summary>
         [HttpGet("public")]
         [AllowAnonymous]
         public async Task<ActionResult<List<PublicDestinationDto>>> GetPublicDestinations(CancellationToken cancellationToken)

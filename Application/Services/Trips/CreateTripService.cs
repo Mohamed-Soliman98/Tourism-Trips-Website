@@ -26,10 +26,8 @@ namespace Application.Services.Trips
             CreateTripDto dto,
             CancellationToken cancellationToken = default)
         {
-            // 1. Validate DTO
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            // 2. Check related data
             if (!await _unitOfWork.Categories.ExistsAndIsActiveAsync(dto.CategoryId, cancellationToken))
             {
                 throw new ArgumentException("Category does not exist or is inactive.");
@@ -45,7 +43,6 @@ namespace Application.Services.Trips
                 throw new ArgumentException("Tour type does not exist or is inactive.");
             }
 
-            // 3. Check Slug
             if (await _unitOfWork.Trips.ExistsBySlugAsync(dto.Slug, cancellationToken))
             {
                 throw new InvalidOperationException("Trip slug already exists.");
@@ -57,7 +54,6 @@ namespace Application.Services.Trips
 
             try
             {
-                // 4. Create Trip
                 var trip = new Trip
                 {
                     Id = Guid.NewGuid(),
@@ -90,7 +86,6 @@ namespace Application.Services.Trips
                     TourTypeId = dto.TourTypeId
                 };
 
-                // 5. Cover Image → Convert to TripImage with IsCover=true
                 if (dto.CoverImage is not null)
                 {
                     var coverPath = await _fileStorage.SaveAsync(dto.CoverImage, "trips", cancellationToken);
@@ -102,13 +97,12 @@ namespace Application.Services.Trips
                         TripId = trip.Id,
                         ImageUrl = coverPath,
                         AltText = dto.CoverImageAltText ?? dto.Title,
-                        DisplayOrder = -1, // Cover image gets priority ordering
+                        DisplayOrder = -1,
                         IsCover = true,
                         CreatedAt = DateTime.UtcNow
                     });
                 }
 
-                // 6. Gallery Images
                 int galleryStartOrder = 0;
                 for (int i = 0; i < dto.GalleryImages.Count; i++)
                 {
@@ -130,7 +124,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // OG Image
                 if (dto.OgImage is not null)
                 {
                     var ogImagePath = await _fileStorage.SaveAsync(dto.OgImage, "trips", cancellationToken);
@@ -140,7 +133,6 @@ namespace Application.Services.Trips
                     trip.OgImage = ogImagePath;
                 }
 
-                // 7. Itinerary
                 foreach (var item in dto.ItineraryItems)
                 {
                     trip.ItineraryItems.Add(new TripItineraryItem
@@ -153,7 +145,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 8. Includes
                 foreach (var item in dto.Includes)
                 {
                     trip.Includes.Add(new TripInclude
@@ -164,7 +155,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 9. Excludes
                 foreach (var item in dto.Excludes)
                 {
                     trip.Excludes.Add(new TripExclude
@@ -175,7 +165,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 10. FAQs
                 foreach (var faqDto in dto.FAQs)
                 {
                     var faq = new FAQ
@@ -203,7 +192,6 @@ namespace Application.Services.Trips
                     trip.FAQs.Add(faq);
                 }
 
-                // 11. Trip Translations
                 foreach (var translation in dto.Translations)
                 {
                     trip.Translations.Add(new TripTranslation
@@ -219,7 +207,6 @@ namespace Application.Services.Trips
                     });
                 }
 
-                // 12. Save
                 _unitOfWork.Trips.Add(trip);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

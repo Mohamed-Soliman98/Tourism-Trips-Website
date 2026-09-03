@@ -21,8 +21,6 @@ namespace Api
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
 
-            // Rate Limiting for public booking inquiry endpoint - per IP address
-            // Rate Limiting for public booking inquiry endpoint - per IP address
             builder.Services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

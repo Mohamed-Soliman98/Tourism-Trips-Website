@@ -22,7 +22,6 @@ namespace Application.Services.BookingInquiries
                 throw new ArgumentException("Booking inquiry Id cannot be empty.", nameof(id));
             }
 
-            // Use Booking-specific method to eager-load Trip navigation property
             var inquiry = await _unitOfWork.BookingInquiries.GetByIdWithTripAsync(id, cancellationToken);
 
             if (inquiry == null)

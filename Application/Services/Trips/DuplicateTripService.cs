@@ -18,7 +18,6 @@ namespace Application.Services.Trips
 
         public async Task<TripDuplicatedResponseDto> DuplicateTripAsync(Guid tripId, CancellationToken cancellationToken)
         {
-            // Find the original trip with all related data
             var originalTrip = await _unitOfWork.Trips.GetByIdWithDetailsAsync(tripId, cancellationToken);
             
             if (originalTrip == null)
@@ -26,21 +25,18 @@ namespace Application.Services.Trips
                 throw new KeyNotFoundException($"Trip with ID {tripId} not found.");
             }
 
-            // Begin transaction for atomic operation
             using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             
             try
             {
-                // Generate unique slug for the duplicated trip
                 var newSlug = await GenerateUniqueSlugAsync(originalTrip.Slug, cancellationToken);
 
-                // Create the new trip
                 var newTrip = new Trip
                 {
                     Id = Guid.NewGuid(),
                     Title = originalTrip.Title,
                     Slug = newSlug,
-                    Status = TripStatus.Draft, // Always start as Draft
+                    Status = TripStatus.Draft,
                     IsFeatured = originalTrip.IsFeatured,
                     DisplayOrder = originalTrip.DisplayOrder,
                     Duration = originalTrip.Duration,
@@ -65,7 +61,6 @@ namespace Application.Services.Trips
 
                 _unitOfWork.Trips.Add(newTrip);
 
-                // Duplicate translations
                 foreach (var translation in originalTrip.Translations)
                 {
                     var newTranslation = new TripTranslation
@@ -83,7 +78,6 @@ namespace Application.Services.Trips
                     _unitOfWork.TripTranslations.Add(newTranslation);
                 }
 
-                // Duplicate images
                 foreach (var image in originalTrip.Images)
                 {
                     var newImage = new TripImage
@@ -92,7 +86,7 @@ namespace Application.Services.Trips
                         ImageUrl = image.ImageUrl,
                         AltText = image.AltText,
                         DisplayOrder = image.DisplayOrder,
-                        IsCover = image.IsCover, // Can be copied since it's a new trip
+                        IsCover = image.IsCover,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = null,
                         TripId = newTrip.Id
@@ -101,7 +95,6 @@ namespace Application.Services.Trips
                     _unitOfWork.TripImages.Add(newImage);
                 }
 
-                // Duplicate itinerary items
                 foreach (var itineraryItem in originalTrip.ItineraryItems)
                 {
                     var newItineraryItem = new TripItineraryItem
@@ -118,7 +111,6 @@ namespace Application.Services.Trips
                     _unitOfWork.TripItineraryItems.Add(newItineraryItem);
                 }
 
-                // Duplicate includes
                 foreach (var include in originalTrip.Includes)
                 {
                     var newInclude = new TripInclude
@@ -133,7 +125,6 @@ namespace Application.Services.Trips
                     _unitOfWork.TripIncludes.Add(newInclude);
                 }
 
-                // Duplicate excludes
                 foreach (var exclude in originalTrip.Excludes)
                 {
                     var newExclude = new TripExclude
@@ -148,7 +139,6 @@ namespace Application.Services.Trips
                     _unitOfWork.TripExcludes.Add(newExclude);
                 }
 
-                // Duplicate FAQs
                 foreach (var faq in originalTrip.FAQs)
                 {
                     var newFaq = new FAQ
@@ -165,7 +155,6 @@ namespace Application.Services.Trips
                     
                     _unitOfWork.FAQs.Add(newFaq);
 
-                    // Duplicate FAQ translations
                     foreach (var faqTranslation in faq.Translations)
                     {
                         var newFaqTranslation = new FAQTranslation
@@ -181,7 +170,6 @@ namespace Application.Services.Trips
                     }
                 }
 
-                // Save all changes
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -206,7 +194,6 @@ namespace Application.Services.Trips
             var counter = 1;
             var newSlug = $"{baseSlug}-copy";
 
-            // Keep generating unique slugs until we find one that doesn't exist
             while (await _unitOfWork.Trips.ExistsBySlugAsync(newSlug, cancellationToken))
             {
                 counter++;

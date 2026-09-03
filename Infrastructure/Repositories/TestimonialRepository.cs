@@ -17,7 +17,6 @@ namespace Infrastructure.Repositories
         {
             var queryable = _dbSet.AsQueryable();
 
-            // Apply filters
             if (query.IsActive.HasValue)
             {
                 queryable = queryable.Where(t => t.IsActive == query.IsActive.Value);
@@ -32,10 +31,8 @@ namespace Infrastructure.Repositories
                     (t.Country != null && t.Country.ToLower().Contains(searchTerm)));
             }
 
-            // Get total count before pagination
             var totalCount = await queryable.CountAsync(cancellationToken);
 
-            // Apply pagination and select
             var testimonials = await queryable
                 .OrderByDescending(t => t.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)

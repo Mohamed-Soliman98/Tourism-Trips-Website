@@ -17,7 +17,6 @@ namespace Infrastructure.Repositories
         {
             var queryable = _dbSet.AsQueryable();
 
-            // Apply filters
             if (query.IsActive.HasValue)
             {
                 queryable = queryable.Where(c => c.IsActive == query.IsActive.Value);
@@ -32,10 +31,8 @@ namespace Infrastructure.Repositories
                     c.Content.ToLower().Contains(searchTerm));
             }
 
-            // Get total count before pagination
             var totalCount = await queryable.CountAsync(cancellationToken);
 
-            // Apply ordering and pagination
             var cmsSections = await queryable
                 .OrderBy(c => c.DisplayOrder)
                 .ThenByDescending(c => c.CreatedAt)

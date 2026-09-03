@@ -52,9 +52,6 @@ namespace Infrastructure.Configurations
             builder.Property(s => s.CreatedAt)
                 .IsRequired();
 
-            // Ensure only one settings record exists (singleton pattern)
-            // We could add a check constraint or handle this at application level
-            // For simplicity, we'll handle it at application level
         }
     }
 }

@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.TripExcludes
 {
-    /// <summary>
-    /// Manages excluded items for a specific Trip. Admin-only.
-    /// </summary>
     [Route("api/trips/{tripId:guid}/excludes")]
     [ApiController]
     [Authorize(Roles = "SuperAdmin,Admin")]

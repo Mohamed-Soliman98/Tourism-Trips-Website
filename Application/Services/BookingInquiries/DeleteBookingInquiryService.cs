@@ -22,7 +22,6 @@ namespace Application.Services.BookingInquiries
                 throw new ArgumentException("Booking inquiry Id cannot be empty.", nameof(id));
             }
 
-            // Use generic GetByIdAsync – deletion does not require navigation properties
             var inquiry = await _unitOfWork.BookingInquiries.GetByIdAsync(id, cancellationToken);
 
             if (inquiry == null)

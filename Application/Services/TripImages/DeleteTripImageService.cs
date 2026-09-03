@@ -29,20 +29,16 @@ namespace Application.Services.TripImages
             if (imageId == Guid.Empty)
                 throw new ArgumentException("Image Id cannot be empty.", nameof(imageId));
 
-            // 1. Load image record
             var image = await _unitOfWork.TripImages.GetByIdAsync(imageId, cancellationToken);
             if (image == null)
                 throw new KeyNotFoundException($"TripImage with ID '{imageId}' was not found.");
 
-            // 2. Confirm the image belongs to the requested trip
             if (image.TripId != tripId)
                 throw new InvalidOperationException(
                     $"Image '{imageId}' does not belong to trip '{tripId}'.");
 
-            // 3. Capture the file path before deletion
             var imagePath = image.ImageUrl;
 
-            // 4. Remove DB record inside a transaction
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
@@ -57,7 +53,6 @@ namespace Application.Services.TripImages
                 throw;
             }
 
-            // 5. Delete physical file only after DB commit succeeds
             if (!string.IsNullOrWhiteSpace(imagePath))
                 await _fileStorage.DeleteAsync(imagePath);
 

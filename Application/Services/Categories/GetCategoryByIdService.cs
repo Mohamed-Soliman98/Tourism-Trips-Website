@@ -22,7 +22,6 @@ namespace Application.Services.Categories
                 throw new ArgumentException("Category Id cannot be empty.", nameof(id));
             }
 
-            // Reuses Generic Repository: GetByIdAsync
             var category = await _unitOfWork.Categories.GetByIdAsync(id, cancellationToken);
             if (category == null)
             {

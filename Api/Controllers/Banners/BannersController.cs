@@ -113,9 +113,6 @@ namespace Api.Controllers.Banners
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get all active banners for the website.
-        /// </summary>
         [HttpGet("public")]
         [AllowAnonymous]
         public async Task<ActionResult<List<PublicBannerDto>>> GetPublicBanners(CancellationToken cancellationToken)

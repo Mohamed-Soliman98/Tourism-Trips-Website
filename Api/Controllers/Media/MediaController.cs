@@ -17,9 +17,6 @@ namespace Api.Controllers.Media
             _uploadMediaService = uploadMediaService;
         }
 
-        /// <summary>
-        /// Admin – Upload a media file and receive a stable public URL/path.
-        /// </summary>
         [HttpPost("upload")]
         [ProducesResponseType(typeof(MediaUploadedResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

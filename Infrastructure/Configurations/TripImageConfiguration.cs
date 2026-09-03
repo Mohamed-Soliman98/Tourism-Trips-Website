@@ -23,8 +23,6 @@ namespace Infrastructure.Configurations
                 .HasForeignKey(i => i.TripId)
                 .OnDelete(DeleteBehavior.Cascade);
                 
-            // Filtered unique index: Only one IsCover=true per TripId
-            // Enforces business rule at database level to prevent race conditions
             builder.HasIndex(i => i.TripId)
                 .IsUnique()
                 .HasFilter("[IsCover] = 1")

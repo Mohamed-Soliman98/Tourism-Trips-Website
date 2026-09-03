@@ -16,7 +16,6 @@ namespace Application.Services.CMSSections
 
         public async Task<CMSSectionCreatedResponseDto> CreateCMSSectionAsync(CreateCMSSectionDto dto, CancellationToken cancellationToken)
         {
-            // Check if key already exists
             var keyExists = await _unitOfWork.CMSSections.KeyExistsAsync(dto.Key, cancellationToken: cancellationToken);
             if (keyExists)
             {

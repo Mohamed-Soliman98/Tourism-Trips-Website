@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.TripTranslations
 {
-    /// <summary>
-    /// Manages multilingual translations for a specific Trip. Admin-only.
-    /// </summary>
     [Route("api/trips/{tripId:guid}/translations")]
     [ApiController]
     [Authorize(Roles = "SuperAdmin,Admin")]

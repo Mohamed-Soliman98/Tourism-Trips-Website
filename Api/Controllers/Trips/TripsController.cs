@@ -91,13 +91,6 @@ namespace Api.Controllers.Trips
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get trip details by slug with language selection.
-        /// </summary>
-        /// <param name="slug">The trip slug</param>
-        /// <param name="language">The requested language (English or German)</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>Trip details with translation for the requested language</returns>
         [HttpGet("slug/{slug}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(TripDetailsResponseDto), StatusCodes.Status200OK)]

@@ -20,7 +20,6 @@ namespace Application.Services.TripImages
             if (tripId == Guid.Empty)
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(tripId));
 
-            // Verify the trip exists before returning an empty list
             var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");

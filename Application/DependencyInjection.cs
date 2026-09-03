@@ -39,10 +39,8 @@ namespace Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            // Validators
             services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
-            // Trip Use Case Services
             services.AddScoped<ICreateTripService, CreateTripService>();
             services.AddScoped<IGetTripByIdService, GetTripByIdService>();
             services.AddScoped<IGetTripBySlugService, GetTripBySlugService>();
@@ -54,7 +52,6 @@ namespace Application
             services.AddScoped<IUnpublishTripService, UnpublishTripService>();
             services.AddScoped<IDuplicateTripService, DuplicateTripService>();
 
-            // Category Use Case Services
             services.AddScoped<ICreateCategoryService, CreateCategoryService>();
             services.AddScoped<IGetCategoriesService, GetCategoriesService>();
             services.AddScoped<IGetCategoryByIdService, GetCategoryByIdService>();
@@ -62,7 +59,6 @@ namespace Application
             services.AddScoped<IDeleteCategoryService, DeleteCategoryService>();
             services.AddScoped<IGetPublicCategoriesService, GetPublicCategoriesService>();
 
-            // Destination Use Case Services
             services.AddScoped<ICreateDestinationService, CreateDestinationService>();
             services.AddScoped<IGetDestinationsService, GetDestinationsService>();
             services.AddScoped<IGetDestinationByIdService, GetDestinationByIdService>();
@@ -70,7 +66,6 @@ namespace Application
             services.AddScoped<IDeleteDestinationService, DeleteDestinationService>();
             services.AddScoped<IGetPublicDestinationsService, GetPublicDestinationsService>();
 
-            // TourType Use Case Services
             services.AddScoped<ICreateTourTypeService, CreateTourTypeService>();
             services.AddScoped<IGetTourTypesService, GetTourTypesService>();
             services.AddScoped<IGetTourTypeByIdService, GetTourTypeByIdService>();
@@ -78,7 +73,6 @@ namespace Application
             services.AddScoped<IDeleteTourTypeService, DeleteTourTypeService>();
             services.AddScoped<IGetPublicTourTypesService, GetPublicTourTypesService>();
 
-            // Booking Inquiry Use Case Services
             services.AddScoped<ICreateBookingInquiryService, CreateBookingInquiryService>();
             services.AddScoped<IGetBookingInquiriesService, GetBookingInquiriesService>();
             services.AddScoped<IGetBookingInquiryByIdService, GetBookingInquiryByIdService>();
@@ -87,48 +81,41 @@ namespace Application
 
             services.AddScoped<IUploadMediaService, UploadMediaService>();
 
-            // TripImage Use Case Services
             services.AddScoped<IAddTripImageService, AddTripImageService>();
             services.AddScoped<IGetTripGalleryService, GetTripGalleryService>();
             services.AddScoped<IUpdateTripImageService, UpdateTripImageService>();
             services.AddScoped<IDeleteTripImageService, DeleteTripImageService>();
 
-            // Trip Translation Use Case Services
             services.AddScoped<IAddTripTranslationService, AddTripTranslationService>();
             services.AddScoped<IGetTripTranslationsService, GetTripTranslationsService>();
             services.AddScoped<IGetTripTranslationByIdService, GetTripTranslationByIdService>();
             services.AddScoped<IUpdateTripTranslationService, UpdateTripTranslationService>();
             services.AddScoped<IDeleteTripTranslationService, DeleteTripTranslationService>();
 
-            // Trip Include Use Case Services
             services.AddScoped<IAddTripIncludeService, AddTripIncludeService>();
             services.AddScoped<IGetTripIncludesService, GetTripIncludesService>();
             services.AddScoped<IGetTripIncludeByIdService, GetTripIncludeByIdService>();
             services.AddScoped<IUpdateTripIncludeService, UpdateTripIncludeService>();
             services.AddScoped<IDeleteTripIncludeService, DeleteTripIncludeService>();
 
-            // Trip Exclude Use Case Services
             services.AddScoped<IAddTripExcludeService, AddTripExcludeService>();
             services.AddScoped<IGetTripExcludesService, GetTripExcludesService>();
             services.AddScoped<IGetTripExcludeByIdService, GetTripExcludeByIdService>();
             services.AddScoped<IUpdateTripExcludeService, UpdateTripExcludeService>();
             services.AddScoped<IDeleteTripExcludeService, DeleteTripExcludeService>();
 
-            // Trip FAQ Use Case Services
             services.AddScoped<IAddTripFAQService, AddTripFAQService>();
             services.AddScoped<IGetTripFAQsService, GetTripFAQsService>();
             services.AddScoped<IGetTripFAQByIdService, GetTripFAQByIdService>();
             services.AddScoped<IUpdateTripFAQService, UpdateTripFAQService>();
             services.AddScoped<IDeleteTripFAQService, DeleteTripFAQService>();
 
-            // Testimonial Use Case Services
             services.AddScoped<ICreateTestimonialService, CreateTestimonialService>();
             services.AddScoped<IGetTestimonialsService, GetTestimonialsService>();
             services.AddScoped<IGetTestimonialByIdService, GetTestimonialByIdService>();
             services.AddScoped<IUpdateTestimonialService, UpdateTestimonialService>();
             services.AddScoped<IDeleteTestimonialService, DeleteTestimonialService>();
 
-            // Banner Use Case Services
             services.AddScoped<ICreateBannerService, CreateBannerService>();
             services.AddScoped<IGetBannersService, GetBannersService>();
             services.AddScoped<IGetBannerByIdService, GetBannerByIdService>();
@@ -136,7 +123,6 @@ namespace Application
             services.AddScoped<IDeleteBannerService, DeleteBannerService>();
             services.AddScoped<IGetPublicBannersService, GetPublicBannersService>();
 
-            // CMS Section Use Case Services
             services.AddScoped<ICreateCMSSectionService, CreateCMSSectionService>();
             services.AddScoped<IGetCMSSectionsService, GetCMSSectionsService>();
             services.AddScoped<IGetCMSSectionByIdService, GetCMSSectionByIdService>();
@@ -144,13 +130,11 @@ namespace Application
             services.AddScoped<IDeleteCMSSectionService, DeleteCMSSectionService>();
             services.AddScoped<IGetPublicCMSSectionsService, GetPublicCMSSectionsService>();
 
-            // Site Settings Use Case Services
             services.AddScoped<IGetSiteSettingsService, GetSiteSettingsService>();
             services.AddScoped<ICreateSiteSettingsService, CreateSiteSettingsService>();
             services.AddScoped<IUpdateSiteSettingsService, UpdateSiteSettingsService>();
             services.AddScoped<IGetPublicSiteSettingsService, GetPublicSiteSettingsService>();
 
-            // Dashboard Use Case Services
             services.AddScoped<IGetDashboardSummaryService, GetDashboardSummaryService>();
 
             return services;

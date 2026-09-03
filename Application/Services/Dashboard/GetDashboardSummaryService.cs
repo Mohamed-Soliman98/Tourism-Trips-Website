@@ -16,24 +16,20 @@ namespace Application.Services.Dashboard
 
         public async Task<DashboardSummaryDto> GetDashboardSummaryAsync(CancellationToken cancellationToken = default)
         {
-            // Get Trip counts
             var totalTrips = await _unitOfWork.Trips.GetTotalCountAsync(cancellationToken);
             var activeTrips = await _unitOfWork.Trips.GetCountByStatusAsync(TripStatus.Active, cancellationToken);
             var draftTrips = await _unitOfWork.Trips.GetCountByStatusAsync(TripStatus.Draft, cancellationToken);
 
-            // Get Booking Inquiry counts
             var totalBookingInquiries = await _unitOfWork.BookingInquiries.GetTotalCountAsync(cancellationToken);
             var newBookingInquiries = await _unitOfWork.BookingInquiries.GetCountByStatusAsync(BookingInquiryStatus.New, cancellationToken);
             var contactedBookingInquiries = await _unitOfWork.BookingInquiries.GetCountByStatusAsync(BookingInquiryStatus.Contacted, cancellationToken);
             var confirmedBookingInquiries = await _unitOfWork.BookingInquiries.GetCountByStatusAsync(BookingInquiryStatus.Confirmed, cancellationToken);
             var cancelledBookingInquiries = await _unitOfWork.BookingInquiries.GetCountByStatusAsync(BookingInquiryStatus.Cancelled, cancellationToken);
 
-            // Get Testimonial counts
             var totalTestimonials = await _unitOfWork.Testimonials.GetTotalCountAsync(cancellationToken);
             var activeTestimonials = await _unitOfWork.Testimonials.GetActiveCountAsync(cancellationToken);
             var inactiveTestimonials = await _unitOfWork.Testimonials.GetInactiveCountAsync(cancellationToken);
 
-            // Get Banner counts
             var totalBanners = await _unitOfWork.Banners.GetTotalCountAsync(cancellationToken);
             var activeBanners = await _unitOfWork.Banners.GetActiveCountAsync(cancellationToken);
             var inactiveBanners = await _unitOfWork.Banners.GetInactiveCountAsync(cancellationToken);

@@ -20,7 +20,6 @@ namespace Application.Services.CMSSections
             if (cmsSection == null)
                 return null;
 
-            // Check if key already exists (excluding current section)
             if (cmsSection.Key != dto.Key)
             {
                 var keyExists = await _unitOfWork.CMSSections.KeyExistsAsync(dto.Key, id, cancellationToken);

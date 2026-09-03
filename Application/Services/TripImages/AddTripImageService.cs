@@ -28,14 +28,11 @@ namespace Application.Services.TripImages
             AddTripImageDto dto,
             CancellationToken cancellationToken = default)
         {
-            // 1. Guard route param
             if (tripId == Guid.Empty)
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(tripId));
 
-            // 2. Validate DTO (file presence, size, magic bytes, alt text length, display order)
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            // 3. Verify the trip exists
             var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
@@ -46,10 +43,8 @@ namespace Application.Services.TripImages
 
             try
             {
-                // 4. Enforce single IsCover business rule
                 if (dto.IsCover)
                 {
-                    // Load WITH tracking so EF Core will persist changes
                     var currentCovers = await _unitOfWork.TripImages
                         .GetCoverImagesTrackedAsync(tripId, cancellationToken);
 
@@ -66,10 +61,8 @@ namespace Application.Services.TripImages
                     }
                 }
 
-                // 5. Persist the image file
                 uploadedPath = await _fileStorage.SaveAsync(dto.ImageFile!, "trips", cancellationToken);
 
-                // 6. Create the TripImage record
                 var tripImage = new TripImage
                 {
                     Id           = Guid.NewGuid(),
@@ -98,7 +91,6 @@ namespace Application.Services.TripImages
             {
                 await transaction.RollbackAsync(cancellationToken);
 
-                // Clean up the uploaded file if the DB write failed
                 if (uploadedPath is not null)
                     await _fileStorage.DeleteAsync(uploadedPath);
 

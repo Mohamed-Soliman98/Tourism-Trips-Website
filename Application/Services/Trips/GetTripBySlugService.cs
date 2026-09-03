@@ -43,7 +43,6 @@ namespace Application.Services.Trips
         {
             var coverImage = trip.Images?.FirstOrDefault(i => i.IsCover);
 
-            // Get the translation for the requested language
             var translation = trip.Translations?.FirstOrDefault(t => t.Language == language);
             
             if (translation == null)

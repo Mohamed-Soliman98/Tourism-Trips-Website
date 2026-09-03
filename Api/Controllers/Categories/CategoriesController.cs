@@ -82,9 +82,6 @@ namespace Api.Controllers.Categories
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get all active categories for website navigation and filters.
-        /// </summary>
         [HttpGet("public")]
         [AllowAnonymous]
         public async Task<ActionResult<List<PublicCategoryDto>>> GetPublicCategories(CancellationToken cancellationToken)

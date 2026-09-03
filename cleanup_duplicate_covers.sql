@@ -1,17 +1,3 @@
--- ============================================================================
--- Data Cleanup Script: Remove Duplicate Cover Images
--- ============================================================================
--- This script identifies and fixes TripImages where multiple records have
--- IsCover = 1 for the same TripId.
---
--- Strategy:
--- For each Trip with multiple covers, keep the NEWEST cover (by CreatedAt DESC)
--- and set all others to IsCover = 0.
---
--- IMPORTANT: Review the SELECT query results before running the UPDATE!
--- ============================================================================
-
--- Step 1: View all trips with multiple cover images
 SELECT 
     TripId,
     COUNT(*) AS CoverCount,
@@ -22,7 +8,6 @@ GROUP BY TripId
 HAVING COUNT(*) > 1
 ORDER BY TripId;
 
--- Step 2: View detailed information about duplicate covers
 SELECT 
     ti.TripId,
     ti.Id AS ImageId,
@@ -41,8 +26,6 @@ WHERE ti.IsCover = 1
     )
 ORDER BY ti.TripId, ti.CreatedAt DESC;
 
--- Step 3: UPDATE - Keep only the newest cover per Trip
--- (RowNum = 1 means newest, others become false)
 BEGIN TRANSACTION;
 
 UPDATE TripImages
@@ -62,7 +45,6 @@ WHERE Id IN (
     WHERE RowNum > 1
 );
 
--- Verify the fix - should return 0 rows
 SELECT 
     TripId,
     COUNT(*) AS CoverCount
@@ -70,7 +52,3 @@ FROM TripImages
 WHERE IsCover = 1
 GROUP BY TripId
 HAVING COUNT(*) > 1;
-
--- If everything looks good, COMMIT. Otherwise, ROLLBACK.
--- COMMIT;
--- ROLLBACK;

@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.TripIncludes
 {
-    /// <summary>
-    /// Manages included items for a specific Trip. Admin-only.
-    /// </summary>
     [Route("api/trips/{tripId:guid}/includes")]
     [ApiController]
     [Authorize(Roles = "SuperAdmin,Admin")]

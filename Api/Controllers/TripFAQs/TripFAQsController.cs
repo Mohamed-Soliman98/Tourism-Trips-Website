@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers.TripFAQs
 {
-    /// <summary>
-    /// Manages FAQs for a specific Trip. Admin-only.
-    /// </summary>
     [Route("api/trips/{tripId:guid}/faqs")]
     [ApiController]
     [Authorize(Roles = "SuperAdmin,Admin")]

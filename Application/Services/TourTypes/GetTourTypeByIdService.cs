@@ -22,7 +22,6 @@ namespace Application.Services.TourTypes
                 throw new ArgumentException("Tour type Id cannot be empty.", nameof(id));
             }
 
-            // Reuses Generic Repository: GetByIdAsync
             var tourType = await _unitOfWork.TourTypes.GetByIdAsync(id, cancellationToken);
             if (tourType == null)
             {

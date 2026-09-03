@@ -15,7 +15,7 @@ namespace Application.Validators.TripImages
                 [".webp"] = "image/webp"
             };
 
-        private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5 MB
+        private const long MaxFileSizeBytes = 5 * 1024 * 1024;
 
         public AddTripImageDtoValidator()
         {
@@ -68,20 +68,17 @@ namespace Application.Validators.TripImages
 
                 if (ext == ".png")
                 {
-                    // PNG: 89 50 4E 47 0D 0A 1A 0A
                     return buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47 &&
                            buffer[4] == 0x0D && buffer[5] == 0x0A && buffer[6] == 0x1A && buffer[7] == 0x0A;
                 }
 
                 if (ext == ".jpg" || ext == ".jpeg")
                 {
-                    // JPEG: FF D8 FF
                     return buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF;
                 }
 
                 if (ext == ".webp")
                 {
-                    // WebP: "RIFF" at 0 + "WEBP" at 8
                     if (bytesRead < 12) return false;
                     return buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46 &&
                            buffer[8] == 0x57 && buffer[9] == 0x45 && buffer[10] == 0x42 && buffer[11] == 0x50;

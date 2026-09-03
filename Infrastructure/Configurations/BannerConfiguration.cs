@@ -38,7 +38,6 @@ namespace Infrastructure.Configurations
             builder.Property(b => b.CreatedAt)
                 .IsRequired();
 
-            // Create index for efficient ordering queries
             builder.HasIndex(b => new { b.IsActive, b.DisplayOrder });
         }
     }

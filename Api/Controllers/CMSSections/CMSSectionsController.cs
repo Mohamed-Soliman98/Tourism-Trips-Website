@@ -127,9 +127,6 @@ namespace Api.Controllers.CMSSections
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get all active CMS sections for the website.
-        /// </summary>
         [HttpGet("public")]
         [AllowAnonymous]
         public async Task<ActionResult<List<PublicCMSSectionDto>>> GetPublicCMSSections(CancellationToken cancellationToken)

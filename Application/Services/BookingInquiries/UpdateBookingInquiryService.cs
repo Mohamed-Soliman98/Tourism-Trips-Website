@@ -28,10 +28,8 @@ namespace Application.Services.BookingInquiries
                 throw new ArgumentException("Booking inquiry Id cannot be empty.", nameof(id));
             }
 
-            // Validate DTO
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            // Fetch entity – use generic GetByIdAsync since we only need the entity itself (no navigation needed)
             var inquiry = await _unitOfWork.BookingInquiries.GetByIdAsync(id, cancellationToken);
 
             if (inquiry == null)
@@ -39,7 +37,6 @@ namespace Application.Services.BookingInquiries
                 throw new KeyNotFoundException($"Booking inquiry with ID '{id}' was not found.");
             }
 
-            // Apply updates
             inquiry.Status = dto.Status;
             inquiry.InternalNotes = string.IsNullOrWhiteSpace(dto.InternalNotes) ? null : dto.InternalNotes.Trim();
             inquiry.UpdatedAt = DateTime.UtcNow;

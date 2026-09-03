@@ -95,7 +95,6 @@ namespace Application.Validators.Trips
                 })
                 .WithMessage("Duplicate translation languages are not allowed for the same Trip.");
 
-            // Child Collection Validators with Null-Safety Guards
             RuleForEach(x => x.ItineraryItems)
                 .SetValidator(new CreateTripItineraryItemDtoValidator())
                 .When(x => x.ItineraryItems != null);
@@ -121,7 +120,6 @@ namespace Application.Validators.Trips
         {
             if (file == null) return true;
 
-            // Reject empty files or files exceeding max size (5 MB)
             if (file.Length == 0 || file.Length > MaxFileSizeBytes)
                 return false;
 
@@ -129,11 +127,9 @@ namespace Application.Validators.Trips
             if (string.IsNullOrEmpty(extension) || !AllowedFiles.TryGetValue(extension, out var expectedMimeType))
                 return false;
 
-            // Validate ContentType matching expected MIME type
             if (!string.Equals(file.ContentType, expectedMimeType, StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            // Asynchronously validate file signature / magic bytes
             return await ValidateFileSignatureAsync(file, extension, cancellationToken);
         }
 
@@ -150,20 +146,17 @@ namespace Application.Validators.Trips
 
                 if (ext == ".png")
                 {
-                    // PNG magic bytes: 89 50 4E 47 0D 0A 1A 0A
                     return buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47 &&
                            buffer[4] == 0x0D && buffer[5] == 0x0A && buffer[6] == 0x1A && buffer[7] == 0x0A;
                 }
 
                 if (ext == ".jpg" || ext == ".jpeg")
                 {
-                    // JPEG magic bytes: FF D8 FF
                     return buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF;
                 }
 
                 if (ext == ".webp")
                 {
-                    // WebP magic bytes: "RIFF" at offset 0 and "WEBP" at offset 8
                     if (bytesRead < 12) return false;
                     return buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46 &&
                            buffer[8] == 0x57 && buffer[9] == 0x45 && buffer[10] == 0x42 && buffer[11] == 0x50;

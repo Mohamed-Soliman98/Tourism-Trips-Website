@@ -31,7 +31,6 @@ namespace Infrastructure.Configurations
             builder.Property(t => t.CreatedAt)
                 .IsRequired();
 
-            // Add check constraint for Rating to be between 1 and 5
             builder.ToTable(t => t.HasCheckConstraint("CK_Testimonial_Rating_Range", "[Rating] >= 1 AND [Rating] <= 5"));
         }
     }

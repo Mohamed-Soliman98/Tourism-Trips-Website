@@ -21,11 +21,9 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            //  DbContext
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-            //  Identity Configuration
             services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {
                 options.Password.RequiredLength = 8;
@@ -37,13 +35,11 @@ namespace Infrastructure
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
-            //  Bind JwtOptions Section
             services.Configure<JwtOptions>(configuration.GetSection("JWT"));
 
             var jwtOptions = configuration.GetSection("JWT").Get<JwtOptions>()
                 ?? throw new InvalidOperationException("JWT options are not configured in appsettings.json.");
 
-            //  JWT Authentication Bearer
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -67,7 +63,6 @@ namespace Infrastructure
                 };
             });
 
-            // Repositories
             services.AddScoped(typeof(IRepositoryGeneric<>), typeof(RepositoryGeneric<>));
             services.AddScoped<ITripRepository, TripRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -86,7 +81,6 @@ namespace Infrastructure
             services.AddScoped<ICMSSectionRepository, CMSSectionRepository>();
             services.AddScoped<ISiteSettingRepository, SiteSettingRepository>();
 
-            // Services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAdminProfileService, AdminProfileService>();

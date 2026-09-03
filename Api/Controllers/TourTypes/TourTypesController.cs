@@ -80,9 +80,6 @@ namespace Api.Controllers.TourTypes
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get all active tour types for website navigation and filters.
-        /// </summary>
         [HttpGet("public")]
         [AllowAnonymous]
         public async Task<ActionResult<List<PublicTourTypeDto>>> GetPublicTourTypes(CancellationToken cancellationToken)

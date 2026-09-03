@@ -100,6 +100,6 @@ namespace Application.DTOs.Trips
         List<TripIncludeDto> Includes,
         List<TripExcludeDto> Excludes,
         List<TripFAQDto> FAQs,
-        TripTranslationDto? Translation // Single translation based on requested language
+        TripTranslationDto? Translation
     );
 }

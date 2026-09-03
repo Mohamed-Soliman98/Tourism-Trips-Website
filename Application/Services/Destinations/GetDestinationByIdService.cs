@@ -22,7 +22,6 @@ namespace Application.Services.Destinations
                 throw new ArgumentException("Destination Id cannot be empty.", nameof(id));
             }
 
-            // Reuses Generic Repository: GetByIdAsync
             var destination = await _unitOfWork.Destinations.GetByIdAsync(id, cancellationToken);
             if (destination == null)
             {

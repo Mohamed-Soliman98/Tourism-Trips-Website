@@ -23,16 +23,13 @@ namespace Application.Services.TourTypes
             CreateTourTypeDto dto,
             CancellationToken cancellationToken = default)
         {
-            // 1. Validate DTO
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            // 2. Check Name Uniqueness
             if (await _unitOfWork.TourTypes.ExistsByNameAsync(dto.Name, cancellationToken))
             {
                 throw new InvalidOperationException($"Tour type with name '{dto.Name.Trim()}' already exists.");
             }
 
-            // 3. Instantiate TourType Entity
             var tourType = new TourType
             {
                 Id = Guid.NewGuid(),
@@ -41,13 +38,10 @@ namespace Application.Services.TourTypes
                 CreatedAt = DateTime.UtcNow
             };
 
-            // 4. Add via Generic Repository
             _unitOfWork.TourTypes.Add(tourType);
 
-            // 5. Commit Changes
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 6. Return Response DTO
             return new TourTypeCreatedResponseDto(
                 tourType.Id,
                 tourType.Name,

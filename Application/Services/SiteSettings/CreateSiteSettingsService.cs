@@ -16,7 +16,6 @@ namespace Application.Services.SiteSettings
 
         public async Task<SiteSettingCreatedResponseDto> CreateSiteSettingsAsync(CreateSiteSettingDto dto, CancellationToken cancellationToken)
         {
-            // Check if settings already exist (singleton pattern)
             var settingsExist = await _unitOfWork.SiteSettings.AnySettingsExistAsync(cancellationToken);
             if (settingsExist)
             {

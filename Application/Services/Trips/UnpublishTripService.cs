@@ -23,13 +23,11 @@ namespace Application.Services.Trips
                 throw new KeyNotFoundException($"Trip with ID {tripId} not found.");
             }
 
-            // Check if trip is already unpublished
             if (trip.Status == TripStatus.Draft)
             {
                 throw new InvalidOperationException("Trip is already unpublished.");
             }
 
-            // Unpublish the trip: Active → Draft
             trip.Status = TripStatus.Draft;
             trip.UpdatedAt = DateTime.UtcNow;
 

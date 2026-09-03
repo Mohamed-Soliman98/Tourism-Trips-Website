@@ -71,9 +71,6 @@ namespace Api.Controllers.SiteSettings
             return Ok(result);
         }
 
-        /// <summary>
-        /// Public – Get site settings for the website (public-safe fields only).
-        /// </summary>
         [HttpGet("public")]
         [AllowAnonymous]
         public async Task<ActionResult<PublicSiteSettingDto>> GetPublicSiteSettings(CancellationToken cancellationToken)
