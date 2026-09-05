@@ -1,16 +1,20 @@
 using Application.DTOs.TripTranslations;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripTranslations;
 
 namespace Application.Services.TripTranslations
 {
     public class GetTripTranslationsService : IGetTripTranslationsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripTranslationRepository _tripTranslationRepository;
 
-        public GetTripTranslationsService(IUnitOfWork unitOfWork)
+        public GetTripTranslationsService(
+            ITripRepository tripRepository,
+            ITripTranslationRepository tripTranslationRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripTranslationRepository = tripTranslationRepository;
         }
 
         public async Task<List<TripTranslationResponseDto>> GetTripTranslationsAsync(
@@ -20,11 +24,11 @@ namespace Application.Services.TripTranslations
             if (tripId == Guid.Empty)
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(tripId));
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var translations = await _unitOfWork.TripTranslations.GetByTripIdAsync(tripId, cancellationToken);
+            var translations = await _tripTranslationRepository.GetByTripIdAsync(tripId, cancellationToken);
 
             return translations
                 .Select(t => new TripTranslationResponseDto(

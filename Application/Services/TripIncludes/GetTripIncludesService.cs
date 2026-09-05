@@ -1,16 +1,20 @@
 using Application.DTOs.TripIncludes;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripIncludes;
 
 namespace Application.Services.TripIncludes
 {
     public class GetTripIncludesService : IGetTripIncludesService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripIncludeRepository _tripIncludeRepository;
 
-        public GetTripIncludesService(IUnitOfWork unitOfWork)
+        public GetTripIncludesService(
+            ITripRepository tripRepository,
+            ITripIncludeRepository tripIncludeRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripIncludeRepository = tripIncludeRepository;
         }
 
         public async Task<List<TripIncludeResponseDto>> GetTripIncludesAsync(
@@ -20,11 +24,11 @@ namespace Application.Services.TripIncludes
             if (tripId == Guid.Empty)
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(tripId));
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var includes = await _unitOfWork.TripIncludes.GetByTripIdAsync(tripId, cancellationToken);
+            var includes = await _tripIncludeRepository.GetByTripIdAsync(tripId, cancellationToken);
 
             return includes
                 .Select(i => new TripIncludeResponseDto(i.Id, i.TripId, i.Description))

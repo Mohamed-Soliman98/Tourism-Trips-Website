@@ -1,7 +1,7 @@
 using Application.DTOs.Common;
 using Application.DTOs.Destinations;
 using Application.Interfaces.Destinations;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Domain.Entity;
 using FluentValidation;
 
@@ -9,14 +9,14 @@ namespace Application.Services.Destinations
 {
     public class GetDestinationsService : IGetDestinationsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDestinationRepository _destinationRepository;
         private readonly IValidator<GetDestinationsQueryDto> _validator;
 
         public GetDestinationsService(
-            IUnitOfWork unitOfWork,
+            IDestinationRepository destinationRepository,
             IValidator<GetDestinationsQueryDto> validator)
         {
-            _unitOfWork = unitOfWork;
+            _destinationRepository = destinationRepository;
             _validator = validator;
         }
 
@@ -26,7 +26,7 @@ namespace Application.Services.Destinations
         {
             await _validator.ValidateAndThrowAsync(query, cancellationToken);
 
-            var (items, totalCount) = await _unitOfWork.Destinations.GetDestinationsAsync(query, cancellationToken);
+            var (items, totalCount) = await _destinationRepository.GetDestinationsAsync(query, cancellationToken);
 
             var dtos = items.Select(MapToDto).ToList();
 

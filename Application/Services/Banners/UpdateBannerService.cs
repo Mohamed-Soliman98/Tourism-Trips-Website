@@ -1,21 +1,26 @@
 using Application.DTOs.Banners;
 using Application.Interfaces.Banners;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Banners
 {
     public class UpdateBannerService : IUpdateBannerService
     {
+        private readonly IBannerRepository _bannerRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateBannerService(IUnitOfWork unitOfWork)
+        public UpdateBannerService(
+            IUnitOfWork unitOfWork,
+            IBannerRepository bannerRepository)
         {
             _unitOfWork = unitOfWork;
+            _bannerRepository = bannerRepository;
         }
 
         public async Task<BannerUpdatedResponseDto?> UpdateBannerAsync(Guid id, UpdateBannerDto dto, CancellationToken cancellationToken)
         {
-            var banner = await _unitOfWork.Banners.GetByIdAsync(id, cancellationToken);
+            var banner = await _bannerRepository.GetByIdAsync(id, cancellationToken);
             
             if (banner == null)
                 return null;
@@ -29,7 +34,7 @@ namespace Application.Services.Banners
             banner.IsActive = dto.IsActive;
             banner.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.Banners.Update(banner);
+            _bannerRepository.Update(banner);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new BannerUpdatedResponseDto(

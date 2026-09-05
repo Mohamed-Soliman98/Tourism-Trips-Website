@@ -1,21 +1,21 @@
 using Application.DTOs.SiteSettings;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.SiteSettings;
 
 namespace Application.Services.SiteSettings
 {
     public class GetPublicSiteSettingsService : IGetPublicSiteSettingsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISiteSettingRepository _siteSettingRepository;
 
-        public GetPublicSiteSettingsService(IUnitOfWork unitOfWork)
+        public GetPublicSiteSettingsService(ISiteSettingRepository siteSettingRepository)
         {
-            _unitOfWork = unitOfWork;
+            _siteSettingRepository = siteSettingRepository;
         }
 
         public async Task<PublicSiteSettingDto?> GetPublicSiteSettingsAsync(CancellationToken cancellationToken = default)
         {
-            var settings = await _unitOfWork.SiteSettings.GetSiteSettingsAsync(cancellationToken);
+            var settings = await _siteSettingRepository.GetSiteSettingsAsync(cancellationToken);
 
             if (settings == null)
             {

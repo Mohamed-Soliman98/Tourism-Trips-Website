@@ -1,17 +1,22 @@
 using Application.DTOs.Banners;
 using Application.Interfaces.Banners;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Domain.Entity;
 
 namespace Application.Services.Banners
 {
     public class CreateBannerService : ICreateBannerService
     {
+        private readonly IBannerRepository _bannerRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CreateBannerService(IUnitOfWork unitOfWork)
+        public CreateBannerService(
+            IUnitOfWork unitOfWork,
+            IBannerRepository bannerRepository)
         {
             _unitOfWork = unitOfWork;
+            _bannerRepository = bannerRepository;
         }
 
         public async Task<BannerCreatedResponseDto> CreateBannerAsync(CreateBannerDto dto, CancellationToken cancellationToken)
@@ -30,7 +35,7 @@ namespace Application.Services.Banners
                 UpdatedAt = null
             };
 
-            _unitOfWork.Banners.Add(banner);
+            _bannerRepository.Add(banner);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new BannerCreatedResponseDto(

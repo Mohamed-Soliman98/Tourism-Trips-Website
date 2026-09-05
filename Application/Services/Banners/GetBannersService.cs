@@ -1,22 +1,22 @@
 using Application.DTOs.Banners;
 using Application.DTOs.Common;
 using Application.Interfaces.Banners;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Banners
 {
     public class GetBannersService : IGetBannersService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBannerRepository _bannerRepository;
 
-        public GetBannersService(IUnitOfWork unitOfWork)
+        public GetBannersService(IBannerRepository bannerRepository)
         {
-            _unitOfWork = unitOfWork;
+            _bannerRepository = bannerRepository;
         }
 
         public async Task<PagedResult<BannerSummaryDto>> GetBannersAsync(GetBannersQueryDto query, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.Banners.GetBannersAsync(query, cancellationToken);
+            return await _bannerRepository.GetBannersAsync(query, cancellationToken);
         }
     }
 }

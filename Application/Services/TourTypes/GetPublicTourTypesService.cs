@@ -1,21 +1,21 @@
 using Application.DTOs.TourTypes;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TourTypes;
 
 namespace Application.Services.TourTypes
 {
     public class GetPublicTourTypesService : IGetPublicTourTypesService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITourTypeRepository _tourTypeRepository;
 
-        public GetPublicTourTypesService(IUnitOfWork unitOfWork)
+        public GetPublicTourTypesService(ITourTypeRepository tourTypeRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tourTypeRepository = tourTypeRepository;
         }
 
         public async Task<List<PublicTourTypeDto>> GetPublicTourTypesAsync(CancellationToken cancellationToken = default)
         {
-            var tourTypes = await _unitOfWork.TourTypes.GetActiveAsync(cancellationToken);
+            var tourTypes = await _tourTypeRepository.GetActiveAsync(cancellationToken);
 
             return tourTypes.Select(t => new PublicTourTypeDto(
                 t.Id,

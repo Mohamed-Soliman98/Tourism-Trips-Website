@@ -1,21 +1,21 @@
 using Application.DTOs.Banners;
 using Application.Interfaces.Banners;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Banners
 {
     public class GetBannerByIdService : IGetBannerByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBannerRepository _bannerRepository;
 
-        public GetBannerByIdService(IUnitOfWork unitOfWork)
+        public GetBannerByIdService(IBannerRepository bannerRepository)
         {
-            _unitOfWork = unitOfWork;
+            _bannerRepository = bannerRepository;
         }
 
         public async Task<BannerDetailDto?> GetBannerByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var banner = await _unitOfWork.Banners.GetByIdAsync(id, cancellationToken);
+            var banner = await _bannerRepository.GetByIdAsync(id, cancellationToken);
             
             if (banner == null)
                 return null;

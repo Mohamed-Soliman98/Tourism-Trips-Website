@@ -1,20 +1,24 @@
 using Application.DTOs.BookingInquiries;
 using Application.Interfaces.BookingInquiries;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using FluentValidation;
 
 namespace Application.Services.BookingInquiries
 {
     public class UpdateBookingInquiryService : IUpdateBookingInquiryService
     {
+        private readonly IBookingInquiryRepository _bookingInquiryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateBookingInquiryDto> _validator;
 
         public UpdateBookingInquiryService(
             IUnitOfWork unitOfWork,
+            IBookingInquiryRepository bookingInquiryRepository,
             IValidator<UpdateBookingInquiryDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _bookingInquiryRepository = bookingInquiryRepository;
             _validator = validator;
         }
 
@@ -30,7 +34,7 @@ namespace Application.Services.BookingInquiries
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var inquiry = await _unitOfWork.BookingInquiries.GetByIdAsync(id, cancellationToken);
+            var inquiry = await _bookingInquiryRepository.GetByIdAsync(id, cancellationToken);
 
             if (inquiry == null)
             {

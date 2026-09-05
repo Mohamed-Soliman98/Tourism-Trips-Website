@@ -1,16 +1,16 @@
 using Application.DTOs.Categories;
 using Application.Interfaces.Categories;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Categories
 {
     public class GetCategoryByIdService : IGetCategoryByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public GetCategoryByIdService(IUnitOfWork unitOfWork)
+        public GetCategoryByIdService(ICategoryRepository categoryRepository)
         {
-            _unitOfWork = unitOfWork;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<CategoryDetailDto> GetCategoryByIdAsync(
@@ -22,7 +22,7 @@ namespace Application.Services.Categories
                 throw new ArgumentException("Category Id cannot be empty.", nameof(id));
             }
 
-            var category = await _unitOfWork.Categories.GetByIdAsync(id, cancellationToken);
+            var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
             if (category == null)
             {
                 throw new KeyNotFoundException($"Category with ID '{id}' was not found.");

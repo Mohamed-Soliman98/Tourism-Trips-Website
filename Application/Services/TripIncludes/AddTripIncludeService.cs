@@ -1,6 +1,7 @@
 using Application.DTOs.TripIncludes;
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripIncludes;
 using Domain.Entitys;
 using FluentValidation;
@@ -9,14 +10,20 @@ namespace Application.Services.TripIncludes
 {
     public class AddTripIncludeService : IAddTripIncludeService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripIncludeRepository _tripIncludeRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateTripIncludeDto> _validator;
 
         public AddTripIncludeService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            ITripIncludeRepository tripIncludeRepository,
             IValidator<CreateTripIncludeDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripIncludeRepository = tripIncludeRepository;
             _validator = validator;
         }
 
@@ -30,7 +37,7 @@ namespace Application.Services.TripIncludes
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
@@ -42,7 +49,7 @@ namespace Application.Services.TripIncludes
                 CreatedAt = DateTime.UtcNow
             };
 
-            _unitOfWork.TripIncludes.Add(include);
+            _tripIncludeRepository.Add(include);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new TripIncludeAddedResponseDto(

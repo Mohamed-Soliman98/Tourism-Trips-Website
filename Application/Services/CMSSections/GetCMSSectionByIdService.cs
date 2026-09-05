@@ -1,21 +1,21 @@
 using Application.DTOs.CMSSections;
 using Application.Interfaces.CMSSections;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.CMSSections
 {
     public class GetCMSSectionByIdService : IGetCMSSectionByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICMSSectionRepository _cmsSectionRepository;
 
-        public GetCMSSectionByIdService(IUnitOfWork unitOfWork)
+        public GetCMSSectionByIdService(ICMSSectionRepository cmsSectionRepository)
         {
-            _unitOfWork = unitOfWork;
+            _cmsSectionRepository = cmsSectionRepository;
         }
 
         public async Task<CMSSectionDetailDto?> GetCMSSectionByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var cmsSection = await _unitOfWork.CMSSections.GetByIdAsync(id, cancellationToken);
+            var cmsSection = await _cmsSectionRepository.GetByIdAsync(id, cancellationToken);
             
             if (cmsSection == null)
                 return null;

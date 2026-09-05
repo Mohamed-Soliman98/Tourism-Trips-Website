@@ -1,16 +1,16 @@
 using Application.DTOs.BookingInquiries;
 using Application.Interfaces.BookingInquiries;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.BookingInquiries
 {
     public class GetBookingInquiryByIdService : IGetBookingInquiryByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBookingInquiryRepository _bookingInquiryRepository;
 
-        public GetBookingInquiryByIdService(IUnitOfWork unitOfWork)
+        public GetBookingInquiryByIdService(IBookingInquiryRepository bookingInquiryRepository)
         {
-            _unitOfWork = unitOfWork;
+            _bookingInquiryRepository = bookingInquiryRepository;
         }
 
         public async Task<BookingInquiryDetailDto> GetBookingInquiryByIdAsync(
@@ -22,7 +22,7 @@ namespace Application.Services.BookingInquiries
                 throw new ArgumentException("Booking inquiry Id cannot be empty.", nameof(id));
             }
 
-            var inquiry = await _unitOfWork.BookingInquiries.GetByIdWithTripAsync(id, cancellationToken);
+            var inquiry = await _bookingInquiryRepository.GetByIdWithTripAsync(id, cancellationToken);
 
             if (inquiry == null)
             {

@@ -1,6 +1,7 @@
 using Application.DTOs.TripFAQs;
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripFAQs;
 using Domain.Entitys;
 using FluentValidation;
@@ -9,14 +10,20 @@ namespace Application.Services.TripFAQs
 {
     public class AddTripFAQService : IAddTripFAQService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly IFAQRepository _faqRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateTripFAQDto> _validator;
 
         public AddTripFAQService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            IFAQRepository faqRepository,
             IValidator<CreateTripFAQDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _faqRepository = faqRepository;
             _validator = validator;
         }
 
@@ -30,7 +37,7 @@ namespace Application.Services.TripFAQs
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
@@ -45,7 +52,7 @@ namespace Application.Services.TripFAQs
                 CreatedAt = DateTime.UtcNow
             };
 
-            _unitOfWork.FAQs.Add(faq);
+            _faqRepository.Add(faq);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new TripFAQAddedResponseDto(

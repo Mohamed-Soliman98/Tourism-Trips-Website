@@ -1,21 +1,21 @@
 using Application.DTOs.Categories;
 using Application.Interfaces.Categories;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Categories
 {
     public class GetPublicCategoriesService : IGetPublicCategoriesService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public GetPublicCategoriesService(IUnitOfWork unitOfWork)
+        public GetPublicCategoriesService(ICategoryRepository categoryRepository)
         {
-            _unitOfWork = unitOfWork;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<List<PublicCategoryDto>> GetPublicCategoriesAsync(CancellationToken cancellationToken = default)
         {
-            var categories = await _unitOfWork.Categories.GetActiveAsync(cancellationToken);
+            var categories = await _categoryRepository.GetActiveAsync(cancellationToken);
 
             return categories.Select(c => new PublicCategoryDto(
                 c.Id,

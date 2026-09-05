@@ -1,21 +1,21 @@
 using Application.DTOs.Testimonials;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Testimonials;
 
 namespace Application.Services.Testimonials
 {
     public class GetTestimonialByIdService : IGetTestimonialByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITestimonialRepository _testimonialRepository;
 
-        public GetTestimonialByIdService(IUnitOfWork unitOfWork)
+        public GetTestimonialByIdService(ITestimonialRepository testimonialRepository)
         {
-            _unitOfWork = unitOfWork;
+            _testimonialRepository = testimonialRepository;
         }
 
         public async Task<TestimonialDetailDto?> GetTestimonialByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var testimonial = await _unitOfWork.Testimonials.GetByIdAsync(id, cancellationToken);
+            var testimonial = await _testimonialRepository.GetByIdAsync(id, cancellationToken);
             
             if (testimonial == null)
                 return null;

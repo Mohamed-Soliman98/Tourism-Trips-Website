@@ -1,6 +1,6 @@
 using Application.DTOs.Common;
 using Application.DTOs.TourTypes;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TourTypes;
 using Domain.Entity;
 using FluentValidation;
@@ -9,14 +9,14 @@ namespace Application.Services.TourTypes
 {
     public class GetTourTypesService : IGetTourTypesService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITourTypeRepository _tourTypeRepository;
         private readonly IValidator<GetTourTypesQueryDto> _validator;
 
         public GetTourTypesService(
-            IUnitOfWork unitOfWork,
+            ITourTypeRepository tourTypeRepository,
             IValidator<GetTourTypesQueryDto> validator)
         {
-            _unitOfWork = unitOfWork;
+            _tourTypeRepository = tourTypeRepository;
             _validator = validator;
         }
 
@@ -26,7 +26,7 @@ namespace Application.Services.TourTypes
         {
             await _validator.ValidateAndThrowAsync(query, cancellationToken);
 
-            var (items, totalCount) = await _unitOfWork.TourTypes.GetTourTypesAsync(query, cancellationToken);
+            var (items, totalCount) = await _tourTypeRepository.GetTourTypesAsync(query, cancellationToken);
 
             var dtos = items.Select(MapToDto).ToList();
 

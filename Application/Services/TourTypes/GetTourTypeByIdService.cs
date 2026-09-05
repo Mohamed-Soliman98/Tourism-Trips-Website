@@ -1,16 +1,16 @@
 using Application.DTOs.TourTypes;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TourTypes;
 
 namespace Application.Services.TourTypes
 {
     public class GetTourTypeByIdService : IGetTourTypeByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITourTypeRepository _tourTypeRepository;
 
-        public GetTourTypeByIdService(IUnitOfWork unitOfWork)
+        public GetTourTypeByIdService(ITourTypeRepository tourTypeRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tourTypeRepository = tourTypeRepository;
         }
 
         public async Task<TourTypeDetailDto> GetTourTypeByIdAsync(
@@ -22,7 +22,7 @@ namespace Application.Services.TourTypes
                 throw new ArgumentException("Tour type Id cannot be empty.", nameof(id));
             }
 
-            var tourType = await _unitOfWork.TourTypes.GetByIdAsync(id, cancellationToken);
+            var tourType = await _tourTypeRepository.GetByIdAsync(id, cancellationToken);
             if (tourType == null)
             {
                 throw new KeyNotFoundException($"Tour type with ID '{id}' was not found.");

@@ -1,21 +1,21 @@
 using Application.DTOs.Destinations;
 using Application.Interfaces.Destinations;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Destinations
 {
     public class GetPublicDestinationsService : IGetPublicDestinationsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDestinationRepository _destinationRepository;
 
-        public GetPublicDestinationsService(IUnitOfWork unitOfWork)
+        public GetPublicDestinationsService(IDestinationRepository destinationRepository)
         {
-            _unitOfWork = unitOfWork;
+            _destinationRepository = destinationRepository;
         }
 
         public async Task<List<PublicDestinationDto>> GetPublicDestinationsAsync(CancellationToken cancellationToken = default)
         {
-            var destinations = await _unitOfWork.Destinations.GetActiveAsync(cancellationToken);
+            var destinations = await _destinationRepository.GetActiveAsync(cancellationToken);
 
             return destinations.Select(d => new PublicDestinationDto(
                 d.Id,

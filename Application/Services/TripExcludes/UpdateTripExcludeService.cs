@@ -1,6 +1,7 @@
 using Application.DTOs.TripExcludes;
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripExcludes;
 using FluentValidation;
 
@@ -8,14 +9,20 @@ namespace Application.Services.TripExcludes
 {
     public class UpdateTripExcludeService : IUpdateTripExcludeService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripExcludeRepository _tripExcludeRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateTripExcludeDto> _validator;
 
         public UpdateTripExcludeService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            ITripExcludeRepository tripExcludeRepository,
             IValidator<UpdateTripExcludeDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripExcludeRepository = tripExcludeRepository;
             _validator = validator;
         }
 
@@ -33,11 +40,11 @@ namespace Application.Services.TripExcludes
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var exclude = await _unitOfWork.TripExcludes.GetByIdAsync(excludeId, cancellationToken);
+            var exclude = await _tripExcludeRepository.GetByIdAsync(excludeId, cancellationToken);
             if (exclude == null)
                 throw new KeyNotFoundException($"Trip exclude with ID '{excludeId}' was not found.");
 

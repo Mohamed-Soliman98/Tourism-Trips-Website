@@ -1,6 +1,7 @@
 using Application.DTOs.BookingInquiries;
 using Application.Interfaces.BookingInquiries;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Domain.Entity;
 using Domain.Enum;
 using FluentValidation;
@@ -9,14 +10,20 @@ namespace Application.Services.BookingInquiries
 {
     public class CreateBookingInquiryService : ICreateBookingInquiryService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly IBookingInquiryRepository _bookingInquiryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateBookingInquiryDto> _validator;
 
         public CreateBookingInquiryService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            IBookingInquiryRepository bookingInquiryRepository,
             IValidator<CreateBookingInquiryDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _bookingInquiryRepository = bookingInquiryRepository;
             _validator = validator;
         }
 
@@ -32,7 +39,7 @@ namespace Application.Services.BookingInquiries
             {
                 throw new ArgumentException("Selected date must be a future date.");
             }
-            var trip = await _unitOfWork.Trips.GetByIdWithDetailsAsync(dto.TripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdWithDetailsAsync(dto.TripId, cancellationToken);
             if (trip == null || trip.Status != TripStatus.Active)
             {
                 throw new KeyNotFoundException($"Active trip with ID '{dto.TripId}' was not found.");
@@ -56,7 +63,7 @@ namespace Application.Services.BookingInquiries
                 CreatedAt = DateTime.UtcNow
             };
 
-            _unitOfWork.BookingInquiries.Add(inquiry);
+            _bookingInquiryRepository.Add(inquiry);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new BookingInquiryCreatedResponseDto(

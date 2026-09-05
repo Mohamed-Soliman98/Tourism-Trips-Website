@@ -1,6 +1,7 @@
 using Application.DTOs.TripTranslations;
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripTranslations;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -9,14 +10,20 @@ namespace Application.Services.TripTranslations
 {
     public class UpdateTripTranslationService : IUpdateTripTranslationService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripTranslationRepository _tripTranslationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateTripTranslationDto> _validator;
 
         public UpdateTripTranslationService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            ITripTranslationRepository tripTranslationRepository,
             IValidator<UpdateTripTranslationDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripTranslationRepository = tripTranslationRepository;
             _validator = validator;
         }
 
@@ -34,11 +41,11 @@ namespace Application.Services.TripTranslations
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var translation = await _unitOfWork.TripTranslations.GetByIdAsync(translationId, cancellationToken);
+            var translation = await _tripTranslationRepository.GetByIdAsync(translationId, cancellationToken);
             if (translation == null)
                 throw new KeyNotFoundException($"Trip translation with ID '{translationId}' was not found.");
 
@@ -47,7 +54,7 @@ namespace Application.Services.TripTranslations
                     $"Trip translation '{translationId}' does not belong to trip '{tripId}'.");
 
             if (translation.Language != dto.Language
-                && await _unitOfWork.TripTranslations.ExistsByTripIdAndLanguageExcludingIdAsync(
+                && await _tripTranslationRepository.ExistsByTripIdAndLanguageExcludingIdAsync(
                     tripId, dto.Language, translationId, cancellationToken))
             {
                 throw new InvalidOperationException(

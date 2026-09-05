@@ -1,5 +1,6 @@
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Trips;
 using Domain.Entity;
 using Domain.Entitys;
@@ -9,16 +10,41 @@ namespace Application.Services.Trips
 {
     public class DuplicateTripService : IDuplicateTripService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripTranslationRepository _tripTranslationRepository;
+        private readonly ITripImageRepository _tripImageRepository;
+        private readonly ITripItineraryItemRepository _tripItineraryItemRepository;
+        private readonly ITripIncludeRepository _tripIncludeRepository;
+        private readonly ITripExcludeRepository _tripExcludeRepository;
+        private readonly IFAQRepository _faqRepository;
+        private readonly IFAQTranslationRepository _faqTranslationRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DuplicateTripService(IUnitOfWork unitOfWork)
+        public DuplicateTripService(
+            IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            ITripTranslationRepository tripTranslationRepository,
+            ITripImageRepository tripImageRepository,
+            ITripItineraryItemRepository tripItineraryItemRepository,
+            ITripIncludeRepository tripIncludeRepository,
+            ITripExcludeRepository tripExcludeRepository,
+            IFAQRepository faqRepository,
+            IFAQTranslationRepository faqTranslationRepository)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripTranslationRepository = tripTranslationRepository;
+            _tripImageRepository = tripImageRepository;
+            _tripItineraryItemRepository = tripItineraryItemRepository;
+            _tripIncludeRepository = tripIncludeRepository;
+            _tripExcludeRepository = tripExcludeRepository;
+            _faqRepository = faqRepository;
+            _faqTranslationRepository = faqTranslationRepository;
         }
 
         public async Task<TripDuplicatedResponseDto> DuplicateTripAsync(Guid tripId, CancellationToken cancellationToken)
         {
-            var originalTrip = await _unitOfWork.Trips.GetByIdWithDetailsAsync(tripId, cancellationToken);
+            var originalTrip = await _tripRepository.GetByIdWithDetailsAsync(tripId, cancellationToken);
             
             if (originalTrip == null)
             {
@@ -59,7 +85,7 @@ namespace Application.Services.Trips
                     TourTypeId = originalTrip.TourTypeId
                 };
 
-                _unitOfWork.Trips.Add(newTrip);
+                _tripRepository.Add(newTrip);
 
                 foreach (var translation in originalTrip.Translations)
                 {
@@ -75,7 +101,7 @@ namespace Application.Services.Trips
                         TripId = newTrip.Id
                     };
                     
-                    _unitOfWork.TripTranslations.Add(newTranslation);
+                    _tripTranslationRepository.Add(newTranslation);
                 }
 
                 foreach (var image in originalTrip.Images)
@@ -92,7 +118,7 @@ namespace Application.Services.Trips
                         TripId = newTrip.Id
                     };
                     
-                    _unitOfWork.TripImages.Add(newImage);
+                    _tripImageRepository.Add(newImage);
                 }
 
                 foreach (var itineraryItem in originalTrip.ItineraryItems)
@@ -108,7 +134,7 @@ namespace Application.Services.Trips
                         TripId = newTrip.Id
                     };
                     
-                    _unitOfWork.TripItineraryItems.Add(newItineraryItem);
+                    _tripItineraryItemRepository.Add(newItineraryItem);
                 }
 
                 foreach (var include in originalTrip.Includes)
@@ -122,7 +148,7 @@ namespace Application.Services.Trips
                         TripId = newTrip.Id
                     };
                     
-                    _unitOfWork.TripIncludes.Add(newInclude);
+                    _tripIncludeRepository.Add(newInclude);
                 }
 
                 foreach (var exclude in originalTrip.Excludes)
@@ -136,7 +162,7 @@ namespace Application.Services.Trips
                         TripId = newTrip.Id
                     };
                     
-                    _unitOfWork.TripExcludes.Add(newExclude);
+                    _tripExcludeRepository.Add(newExclude);
                 }
 
                 foreach (var faq in originalTrip.FAQs)
@@ -153,7 +179,7 @@ namespace Application.Services.Trips
                         UpdatedAt = null
                     };
                     
-                    _unitOfWork.FAQs.Add(newFaq);
+                    _faqRepository.Add(newFaq);
 
                     foreach (var faqTranslation in faq.Translations)
                     {
@@ -166,7 +192,7 @@ namespace Application.Services.Trips
                             FAQId = newFaq.Id
                         };
                         
-                        _unitOfWork.FAQTranslations.Add(newFaqTranslation);
+                        _faqTranslationRepository.Add(newFaqTranslation);
                     }
                 }
 
@@ -194,7 +220,7 @@ namespace Application.Services.Trips
             var counter = 1;
             var newSlug = $"{baseSlug}-copy";
 
-            while (await _unitOfWork.Trips.ExistsBySlugAsync(newSlug, cancellationToken))
+            while (await _tripRepository.ExistsBySlugAsync(newSlug, cancellationToken))
             {
                 counter++;
                 newSlug = $"{baseSlug}-copy-{counter}";

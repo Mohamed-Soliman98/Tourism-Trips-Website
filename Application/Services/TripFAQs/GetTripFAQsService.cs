@@ -1,16 +1,20 @@
 using Application.DTOs.TripFAQs;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripFAQs;
 
 namespace Application.Services.TripFAQs
 {
     public class GetTripFAQsService : IGetTripFAQsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
+        private readonly IFAQRepository _faqRepository;
 
-        public GetTripFAQsService(IUnitOfWork unitOfWork)
+        public GetTripFAQsService(
+            ITripRepository tripRepository,
+            IFAQRepository faqRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _faqRepository = faqRepository;
         }
 
         public async Task<List<TripFAQResponseDto>> GetTripFAQsAsync(
@@ -20,11 +24,11 @@ namespace Application.Services.TripFAQs
             if (tripId == Guid.Empty)
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(tripId));
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var faqs = await _unitOfWork.FAQs.GetByTripIdAsync(tripId, cancellationToken);
+            var faqs = await _faqRepository.GetByTripIdAsync(tripId, cancellationToken);
 
             return faqs.Select(f => new TripFAQResponseDto(
                 f.Id,

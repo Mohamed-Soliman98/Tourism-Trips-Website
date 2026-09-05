@@ -1,16 +1,16 @@
 using Application.DTOs.Destinations;
 using Application.Interfaces.Destinations;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Destinations
 {
     public class GetDestinationByIdService : IGetDestinationByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IDestinationRepository _destinationRepository;
 
-        public GetDestinationByIdService(IUnitOfWork unitOfWork)
+        public GetDestinationByIdService(IDestinationRepository destinationRepository)
         {
-            _unitOfWork = unitOfWork;
+            _destinationRepository = destinationRepository;
         }
 
         public async Task<DestinationDetailDto> GetDestinationByIdAsync(
@@ -22,7 +22,7 @@ namespace Application.Services.Destinations
                 throw new ArgumentException("Destination Id cannot be empty.", nameof(id));
             }
 
-            var destination = await _unitOfWork.Destinations.GetByIdAsync(id, cancellationToken);
+            var destination = await _destinationRepository.GetByIdAsync(id, cancellationToken);
             if (destination == null)
             {
                 throw new KeyNotFoundException($"Destination with ID '{id}' was not found.");

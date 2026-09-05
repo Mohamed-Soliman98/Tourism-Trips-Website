@@ -1,7 +1,7 @@
 using Application.DTOs.BookingInquiries;
 using Application.DTOs.Common;
 using Application.Interfaces.BookingInquiries;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Domain.Entity;
 using FluentValidation;
 
@@ -9,14 +9,14 @@ namespace Application.Services.BookingInquiries
 {
     public class GetBookingInquiriesService : IGetBookingInquiriesService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBookingInquiryRepository _bookingInquiryRepository;
         private readonly IValidator<GetBookingInquiriesQueryDto> _validator;
 
         public GetBookingInquiriesService(
-            IUnitOfWork unitOfWork,
+            IBookingInquiryRepository bookingInquiryRepository,
             IValidator<GetBookingInquiriesQueryDto> validator)
         {
-            _unitOfWork = unitOfWork;
+            _bookingInquiryRepository = bookingInquiryRepository;
             _validator = validator;
         }
 
@@ -26,7 +26,7 @@ namespace Application.Services.BookingInquiries
         {
             await _validator.ValidateAndThrowAsync(query, cancellationToken);
 
-            var (items, totalCount) = await _unitOfWork.BookingInquiries.GetInquiriesAsync(query, cancellationToken);
+            var (items, totalCount) = await _bookingInquiryRepository.GetInquiriesAsync(query, cancellationToken);
 
             var dtos = items.Select(MapToSummaryDto).ToList();
 

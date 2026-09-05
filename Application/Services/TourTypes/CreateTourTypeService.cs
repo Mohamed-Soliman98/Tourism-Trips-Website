@@ -1,5 +1,6 @@
 using Application.DTOs.TourTypes;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TourTypes;
 using Domain.Entity;
 using FluentValidation;
@@ -8,14 +9,17 @@ namespace Application.Services.TourTypes
 {
     public class CreateTourTypeService : ICreateTourTypeService
     {
+        private readonly ITourTypeRepository _tourTypeRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateTourTypeDto> _validator;
 
         public CreateTourTypeService(
             IUnitOfWork unitOfWork,
+            ITourTypeRepository tourTypeRepository,
             IValidator<CreateTourTypeDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tourTypeRepository = tourTypeRepository;
             _validator = validator;
         }
 
@@ -25,7 +29,7 @@ namespace Application.Services.TourTypes
         {
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            if (await _unitOfWork.TourTypes.ExistsByNameAsync(dto.Name, cancellationToken))
+            if (await _tourTypeRepository.ExistsByNameAsync(dto.Name, cancellationToken))
             {
                 throw new InvalidOperationException($"Tour type with name '{dto.Name.Trim()}' already exists.");
             }
@@ -38,7 +42,7 @@ namespace Application.Services.TourTypes
                 CreatedAt = DateTime.UtcNow
             };
 
-            _unitOfWork.TourTypes.Add(tourType);
+            _tourTypeRepository.Add(tourType);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

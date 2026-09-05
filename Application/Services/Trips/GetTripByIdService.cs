@@ -1,5 +1,5 @@
 using Application.DTOs.Trips;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Trips;
 using Domain.Entity;
 
@@ -7,11 +7,11 @@ namespace Application.Services.Trips
 {
     public class GetTripByIdService : IGetTripByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
 
-        public GetTripByIdService(IUnitOfWork unitOfWork)
+        public GetTripByIdService(ITripRepository tripRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
         }
 
         public async Task<TripDetailsResponseDto> GetTripByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -21,7 +21,7 @@ namespace Application.Services.Trips
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(id));
             }
 
-            var trip = await _unitOfWork.Trips.GetByIdWithDetailsAsync(id, cancellationToken);
+            var trip = await _tripRepository.GetByIdWithDetailsAsync(id, cancellationToken);
             if (trip == null)
             {
                 throw new KeyNotFoundException($"Trip with ID '{id}' was not found.");

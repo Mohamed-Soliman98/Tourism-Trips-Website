@@ -18,17 +18,13 @@ namespace Infrastructure.Repositories
         {
         }
 
-        public async Task<bool> ExistsBySlugAsync(
-            string slug,
-            CancellationToken cancellationToken)
+        public async Task<bool> ExistsBySlugAsync(string slug,CancellationToken cancellationToken)
         {
             var normalizedSlug = slug.Trim().ToLowerInvariant();
             return await _dbSet.AnyAsync(x => x.Slug.ToLower() == normalizedSlug, cancellationToken);
         }
 
-        public async Task<Trip?> GetByIdWithDetailsAsync(
-            Guid id,
-            CancellationToken cancellationToken = default)
+        public async Task<Trip?> GetByIdWithDetailsAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
                 .AsNoTracking()
@@ -40,7 +36,7 @@ namespace Infrastructure.Repositories
                 .Include(t => t.Includes)
                 .Include(t => t.Excludes)
                 .Include(t => t.FAQs)
-                    .ThenInclude(f => f.Translations)
+                .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }

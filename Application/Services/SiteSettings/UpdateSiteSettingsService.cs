@@ -1,21 +1,26 @@
 using Application.DTOs.SiteSettings;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.SiteSettings;
 
 namespace Application.Services.SiteSettings
 {
     public class UpdateSiteSettingsService : IUpdateSiteSettingsService
     {
+        private readonly ISiteSettingRepository _siteSettingRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateSiteSettingsService(IUnitOfWork unitOfWork)
+        public UpdateSiteSettingsService(
+            IUnitOfWork unitOfWork,
+            ISiteSettingRepository siteSettingRepository)
         {
             _unitOfWork = unitOfWork;
+            _siteSettingRepository = siteSettingRepository;
         }
 
         public async Task<SiteSettingUpdatedResponseDto?> UpdateSiteSettingsAsync(UpdateSiteSettingDto dto, CancellationToken cancellationToken)
         {
-            var siteSetting = await _unitOfWork.SiteSettings.GetSiteSettingsAsync(cancellationToken);
+            var siteSetting = await _siteSettingRepository.GetSiteSettingsAsync(cancellationToken);
             
             if (siteSetting == null)
                 return null;
@@ -33,7 +38,7 @@ namespace Application.Services.SiteSettings
             siteSetting.DefaultMetaDescription = dto.DefaultMetaDescription;
             siteSetting.UpdatedAt = DateTime.UtcNow;
 
-            _unitOfWork.SiteSettings.Update(siteSetting);
+            _siteSettingRepository.Update(siteSetting);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new SiteSettingUpdatedResponseDto(

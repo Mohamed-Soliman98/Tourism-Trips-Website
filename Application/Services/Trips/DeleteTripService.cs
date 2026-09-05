@@ -1,5 +1,6 @@
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Storage;
 using Application.Interfaces.Trips;
 
@@ -7,12 +8,17 @@ namespace Application.Services.Trips
 {
     public class DeleteTripService : IDeleteTripService
     {
+        private readonly ITripRepository _tripRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileStorageService _fileStorage;
 
-        public DeleteTripService(IUnitOfWork unitOfWork, IFileStorageService fileStorage)
+        public DeleteTripService(
+            IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            IFileStorageService fileStorage)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
             _fileStorage = fileStorage;
         }
 
@@ -23,7 +29,7 @@ namespace Application.Services.Trips
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(id));
             }
 
-            var trip = await _unitOfWork.Trips.GetByIdForDeleteAsync(id, cancellationToken);
+            var trip = await _tripRepository.GetByIdForDeleteAsync(id, cancellationToken);
             if (trip == null)
             {
                 throw new KeyNotFoundException($"Trip with ID '{id}' was not found.");
@@ -48,7 +54,7 @@ namespace Application.Services.Trips
 
             try
             {
-                _unitOfWork.Trips.Remove(trip);
+                _tripRepository.Remove(trip);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }

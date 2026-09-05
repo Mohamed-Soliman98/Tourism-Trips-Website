@@ -1,5 +1,6 @@
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Storage;
 using Application.Interfaces.Trips;
 using Domain.Entity;
@@ -11,6 +12,10 @@ namespace Application.Services.Trips
 {
     public class UpdateTripService : IUpdateTripService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IDestinationRepository _destinationRepository;
+        private readonly ITourTypeRepository _tourTypeRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileStorageService _fileStorage;
         private readonly IValidator<UpdateTripDto> _validator;
@@ -18,10 +23,18 @@ namespace Application.Services.Trips
         public UpdateTripService(
             IUnitOfWork unitOfWork,
             IFileStorageService fileStorage,
+            ITourTypeRepository tourTypeRepository,
+            IDestinationRepository destinationRepository,
+            ICategoryRepository categoryRepository,
+            ITripRepository tripRepository,
             IValidator<UpdateTripDto> validator)
         {
             _unitOfWork = unitOfWork;
             _fileStorage = fileStorage;
+            _tourTypeRepository = tourTypeRepository;
+            _destinationRepository = destinationRepository;
+            _categoryRepository = categoryRepository;
+            _tripRepository = tripRepository;
             _validator = validator;
         }
 
@@ -32,27 +45,27 @@ namespace Application.Services.Trips
         {
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            if (!await _unitOfWork.Categories.ExistsAndIsActiveAsync(dto.CategoryId, cancellationToken))
+            if (!await _categoryRepository.ExistsAndIsActiveAsync(dto.CategoryId, cancellationToken))
             {
                 throw new ArgumentException("Category does not exist or is inactive.");
             }
 
-            if (!await _unitOfWork.Destinations.ExistsAndIsActiveAsync(dto.DestinationId, cancellationToken))
+            if (!await _destinationRepository.ExistsAndIsActiveAsync(dto.DestinationId, cancellationToken))
             {
                 throw new ArgumentException("Destination does not exist or is inactive.");
             }
 
-            if (!await _unitOfWork.TourTypes.ExistsAndIsActiveAsync(dto.TourTypeId, cancellationToken))
+            if (!await _tourTypeRepository.ExistsAndIsActiveAsync(dto.TourTypeId, cancellationToken))
             {
                 throw new ArgumentException("Tour type does not exist or is inactive.");
             }
 
-            if (await _unitOfWork.Trips.ExistsBySlugOtherThanIdAsync(dto.Slug, id, cancellationToken))
+            if (await _tripRepository.ExistsBySlugOtherThanIdAsync(dto.Slug, id, cancellationToken))
             {
                 throw new InvalidOperationException("Trip slug already exists for another trip.");
             }
 
-            var trip = await _unitOfWork.Trips.GetByIdForUpdateAsync(id, cancellationToken);
+            var trip = await _tripRepository.GetByIdForUpdateAsync(id, cancellationToken);
             if (trip == null)
             {
                 throw new KeyNotFoundException($"Trip with ID '{id}' was not found.");

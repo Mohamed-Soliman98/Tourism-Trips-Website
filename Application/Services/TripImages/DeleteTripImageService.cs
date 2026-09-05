@@ -1,5 +1,6 @@
 using Application.DTOs.TripImages;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Storage;
 using Application.Interfaces.TripImages;
 
@@ -7,14 +8,17 @@ namespace Application.Services.TripImages
 {
     public class DeleteTripImageService : IDeleteTripImageService
     {
+        private readonly ITripImageRepository _tripImageRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileStorageService _fileStorage;
 
         public DeleteTripImageService(
             IUnitOfWork unitOfWork,
+            ITripImageRepository tripImageRepository,
             IFileStorageService fileStorage)
         {
             _unitOfWork = unitOfWork;
+            _tripImageRepository = tripImageRepository;
             _fileStorage = fileStorage;
         }
 
@@ -29,7 +33,7 @@ namespace Application.Services.TripImages
             if (imageId == Guid.Empty)
                 throw new ArgumentException("Image Id cannot be empty.", nameof(imageId));
 
-            var image = await _unitOfWork.TripImages.GetByIdAsync(imageId, cancellationToken);
+            var image = await _tripImageRepository.GetByIdAsync(imageId, cancellationToken);
             if (image == null)
                 throw new KeyNotFoundException($"TripImage with ID '{imageId}' was not found.");
 
@@ -43,7 +47,7 @@ namespace Application.Services.TripImages
 
             try
             {
-                _unitOfWork.TripImages.Remove(image);
+                _tripImageRepository.Remove(image);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }

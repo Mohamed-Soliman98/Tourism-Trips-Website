@@ -1,22 +1,22 @@
 using Application.DTOs.CMSSections;
 using Application.DTOs.Common;
 using Application.Interfaces.CMSSections;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.CMSSections
 {
     public class GetCMSSectionsService : IGetCMSSectionsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICMSSectionRepository _cmsSectionRepository;
 
-        public GetCMSSectionsService(IUnitOfWork unitOfWork)
+        public GetCMSSectionsService(ICMSSectionRepository cmsSectionRepository)
         {
-            _unitOfWork = unitOfWork;
+            _cmsSectionRepository = cmsSectionRepository;
         }
 
         public async Task<PagedResult<CMSSectionSummaryDto>> GetCMSSectionsAsync(GetCMSSectionsQueryDto query, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.CMSSections.GetCMSSectionsAsync(query, cancellationToken);
+            return await _cmsSectionRepository.GetCMSSectionsAsync(query, cancellationToken);
         }
     }
 }

@@ -1,20 +1,24 @@
 using Application.DTOs.Categories;
 using Application.Interfaces.Categories;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using FluentValidation;
 
 namespace Application.Services.Categories
 {
     public class UpdateCategoryService : IUpdateCategoryService
     {
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateCategoryDto> _validator;
 
         public UpdateCategoryService(
             IUnitOfWork unitOfWork,
+            ICategoryRepository categoryRepository,
             IValidator<UpdateCategoryDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _categoryRepository = categoryRepository;
             _validator = validator;
         }
 
@@ -30,13 +34,13 @@ namespace Application.Services.Categories
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var category = await _unitOfWork.Categories.GetByIdAsync(id, cancellationToken);
+            var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
             if (category == null)
             {
                 throw new KeyNotFoundException($"Category with ID '{id}' was not found.");
             }
 
-            if (await _unitOfWork.Categories.ExistsByNameExcludingIdAsync(dto.Name, id, cancellationToken))
+            if (await _categoryRepository.ExistsByNameExcludingIdAsync(dto.Name, id, cancellationToken))
             {
                 throw new InvalidOperationException($"A category with the name '{dto.Name.Trim()}' already exists.");
             }

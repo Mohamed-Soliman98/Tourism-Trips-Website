@@ -1,21 +1,21 @@
 using Application.DTOs.CMSSections;
 using Application.Interfaces.CMSSections;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.CMSSections
 {
     public class GetPublicCMSSectionsService : IGetPublicCMSSectionsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICMSSectionRepository _cmsSectionRepository;
 
-        public GetPublicCMSSectionsService(IUnitOfWork unitOfWork)
+        public GetPublicCMSSectionsService(ICMSSectionRepository cmsSectionRepository)
         {
-            _unitOfWork = unitOfWork;
+            _cmsSectionRepository = cmsSectionRepository;
         }
 
         public async Task<List<PublicCMSSectionDto>> GetPublicCMSSectionsAsync(CancellationToken cancellationToken = default)
         {
-            var cmsSections = await _unitOfWork.CMSSections.GetActiveCMSSectionsAsync(cancellationToken);
+            var cmsSections = await _cmsSectionRepository.GetActiveCMSSectionsAsync(cancellationToken);
 
             return cmsSections.Select(c => new PublicCMSSectionDto(
                 c.Id,

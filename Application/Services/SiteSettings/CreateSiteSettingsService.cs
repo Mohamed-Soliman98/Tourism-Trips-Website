@@ -1,5 +1,6 @@
 using Application.DTOs.SiteSettings;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.SiteSettings;
 using Domain.Entity;
 
@@ -7,16 +8,20 @@ namespace Application.Services.SiteSettings
 {
     public class CreateSiteSettingsService : ICreateSiteSettingsService
     {
+        private readonly ISiteSettingRepository _siteSettingRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CreateSiteSettingsService(IUnitOfWork unitOfWork)
+        public CreateSiteSettingsService(
+            IUnitOfWork unitOfWork,
+            ISiteSettingRepository siteSettingRepository)
         {
             _unitOfWork = unitOfWork;
+            _siteSettingRepository = siteSettingRepository;
         }
 
         public async Task<SiteSettingCreatedResponseDto> CreateSiteSettingsAsync(CreateSiteSettingDto dto, CancellationToken cancellationToken)
         {
-            var settingsExist = await _unitOfWork.SiteSettings.AnySettingsExistAsync(cancellationToken);
+            var settingsExist = await _siteSettingRepository.AnySettingsExistAsync(cancellationToken);
             if (settingsExist)
             {
                 throw new InvalidOperationException("Site settings already exist. Use the update endpoint to modify existing settings.");
@@ -40,7 +45,7 @@ namespace Application.Services.SiteSettings
                 UpdatedAt = null
             };
 
-            _unitOfWork.SiteSettings.Add(siteSetting);
+            _siteSettingRepository.Add(siteSetting);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new SiteSettingCreatedResponseDto(

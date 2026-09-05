@@ -1,7 +1,7 @@
 using Api.Errors;
 using Application;
 using Infrastructure;
-using Infrastructure.Date;
+using Infrastructure.Data;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
@@ -77,11 +77,12 @@ namespace Api
 
             app.UseExceptionHandler();
 
-            if (app.Environment.IsDevelopment())
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = string.Empty;
+            });
 
             app.UseStaticFiles();
 
@@ -100,14 +101,13 @@ namespace Api
                 var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-                await DbInitializer.SeedAsync(userManager, roleManager);
+                await DbInitializer.SeedAsync(userManager,roleManager,builder.Configuration);
             }
             catch (Exception ex)
             {
-                var logger = services.GetRequiredService<ILogger<Program>>();
+                var logger = services.GetRequiredService<ILogger<Program>>(); 
                 logger.LogError(ex, "An error occurred while seeding the database.");
             }
-
             app.MapControllers();
 
             app.Run();

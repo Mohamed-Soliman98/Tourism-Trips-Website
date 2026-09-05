@@ -1,5 +1,6 @@
 using Application.DTOs.TripImages;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripImages;
 using FluentValidation;
 
@@ -7,14 +8,17 @@ namespace Application.Services.TripImages
 {
     public class UpdateTripImageService : IUpdateTripImageService
     {
+        private readonly ITripImageRepository _tripImageRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<UpdateTripImageDto> _validator;
 
         public UpdateTripImageService(
             IUnitOfWork unitOfWork,
+            ITripImageRepository tripImageRepository,
             IValidator<UpdateTripImageDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripImageRepository = tripImageRepository;
             _validator = validator;
         }
 
@@ -28,7 +32,7 @@ namespace Application.Services.TripImages
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var image = await _unitOfWork.TripImages.GetByIdAsync(imageId, cancellationToken);
+            var image = await _tripImageRepository.GetByIdAsync(imageId, cancellationToken);
             if (image == null)
                 throw new KeyNotFoundException($"TripImage with ID '{imageId}' was not found.");
 
@@ -38,14 +42,14 @@ namespace Application.Services.TripImages
 
             if (dto.IsCover && !image.IsCover)
             {
-                var currentCovers = await _unitOfWork.TripImages
+                var currentCovers = await _tripImageRepository
                     .GetCoverImagesTrackedAsync(tripId, cancellationToken);
                 
                 foreach (var currentCover in currentCovers.Where(c => c.Id != imageId))
                 {
                     currentCover.IsCover = false;
                     currentCover.UpdatedAt = DateTime.UtcNow;
-                    _unitOfWork.TripImages.Update(currentCover);
+                    _tripImageRepository.Update(currentCover);
                 }
                 
                 if (currentCovers.Any(c => c.Id != imageId))

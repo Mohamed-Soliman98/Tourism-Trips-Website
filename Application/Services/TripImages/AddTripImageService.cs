@@ -1,5 +1,6 @@
 using Application.DTOs.TripImages;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Storage;
 using Application.Interfaces.TripImages;
 using Domain.Entitys;
@@ -9,16 +10,22 @@ namespace Application.Services.TripImages
 {
     public class AddTripImageService : IAddTripImageService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripImageRepository _tripImageRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileStorageService _fileStorage;
         private readonly IValidator<AddTripImageDto> _validator;
 
         public AddTripImageService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            ITripImageRepository tripImageRepository,
             IFileStorageService fileStorage,
             IValidator<AddTripImageDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripImageRepository = tripImageRepository;
             _fileStorage = fileStorage;
             _validator = validator;
         }
@@ -33,7 +40,7 @@ namespace Application.Services.TripImages
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
@@ -45,14 +52,14 @@ namespace Application.Services.TripImages
             {
                 if (dto.IsCover)
                 {
-                    var currentCovers = await _unitOfWork.TripImages
+                    var currentCovers = await _tripImageRepository
                         .GetCoverImagesTrackedAsync(tripId, cancellationToken);
 
                     foreach (var currentCover in currentCovers)
                     {
                         currentCover.IsCover = false;
                         currentCover.UpdatedAt = DateTime.UtcNow;
-                        _unitOfWork.TripImages.Update(currentCover);
+                        _tripImageRepository.Update(currentCover);
                     }
 
                     if (currentCovers.Any())
@@ -74,7 +81,7 @@ namespace Application.Services.TripImages
                     CreatedAt    = DateTime.UtcNow
                 };
 
-                _unitOfWork.TripImages.Add(tripImage);
+                _tripImageRepository.Add(tripImage);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);

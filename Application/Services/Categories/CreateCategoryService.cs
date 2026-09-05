@@ -1,6 +1,7 @@
 using Application.DTOs.Categories;
 using Application.Interfaces.IUnitOfWork;
 using Application.Interfaces.Categories;
+using Application.Interfaces.Repositories;
 using Domain.Entity;
 using FluentValidation;
 
@@ -8,14 +9,17 @@ namespace Application.Services.Categories
 {
     public class CreateCategoryService : ICreateCategoryService
     {
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateCategoryDto> _validator;
 
         public CreateCategoryService(
             IUnitOfWork unitOfWork,
+            ICategoryRepository categoryRepository,
             IValidator<CreateCategoryDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _categoryRepository = categoryRepository;
             _validator = validator;
         }
 
@@ -25,7 +29,7 @@ namespace Application.Services.Categories
         {
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            if (await _unitOfWork.Categories.ExistsByNameAsync(dto.Name, cancellationToken))
+            if (await _categoryRepository.ExistsByNameAsync(dto.Name, cancellationToken))
             {
                 throw new InvalidOperationException($"Category with name '{dto.Name.Trim()}' already exists.");
             }
@@ -38,7 +42,7 @@ namespace Application.Services.Categories
                 CreatedAt = DateTime.UtcNow
             };
 
-            _unitOfWork.Categories.Add(category);
+            _categoryRepository.Add(category);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

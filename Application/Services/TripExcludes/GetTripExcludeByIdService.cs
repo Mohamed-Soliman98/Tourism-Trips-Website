@@ -1,16 +1,20 @@
 using Application.DTOs.TripExcludes;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripExcludes;
 
 namespace Application.Services.TripExcludes
 {
     public class GetTripExcludeByIdService : IGetTripExcludeByIdService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripExcludeRepository _tripExcludeRepository;
 
-        public GetTripExcludeByIdService(IUnitOfWork unitOfWork)
+        public GetTripExcludeByIdService(
+            ITripRepository tripRepository,
+            ITripExcludeRepository tripExcludeRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripExcludeRepository = tripExcludeRepository;
         }
 
         public async Task<TripExcludeResponseDto> GetTripExcludeByIdAsync(
@@ -24,11 +28,11 @@ namespace Application.Services.TripExcludes
             if (excludeId == Guid.Empty)
                 throw new ArgumentException("Exclude Id cannot be empty.", nameof(excludeId));
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var exclude = await _unitOfWork.TripExcludes.GetByIdAsync(excludeId, cancellationToken);
+            var exclude = await _tripExcludeRepository.GetByIdAsync(excludeId, cancellationToken);
             if (exclude == null)
                 throw new KeyNotFoundException($"Trip exclude with ID '{excludeId}' was not found.");
 

@@ -1,5 +1,5 @@
 using Application.DTOs.Trips;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Trips;
 using Domain.Entity;
 using Domain.Enum;
@@ -9,12 +9,12 @@ namespace Application.Services.Trips
 {
     public class GetTripBySlugService : IGetTripBySlugService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
         private static readonly Regex SlugRegex = new(@"^[a-z0-9]+(?:-[a-z0-9]+)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public GetTripBySlugService(IUnitOfWork unitOfWork)
+        public GetTripBySlugService(ITripRepository tripRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
         }
 
         public async Task<TripDetailsResponseDto> GetTripBySlugAsync(string slug, Language language, CancellationToken cancellationToken = default)
@@ -30,7 +30,7 @@ namespace Application.Services.Trips
                 throw new ArgumentException("Invalid slug format. Slug must contain lowercase letters, numbers, and hyphens.", nameof(slug));
             }
 
-            var trip = await _unitOfWork.Trips.GetBySlugWithDetailsAsync(trimmedSlug, cancellationToken);
+            var trip = await _tripRepository.GetBySlugWithDetailsAsync(trimmedSlug, cancellationToken);
             if (trip == null || trip.Status != TripStatus.Active)
             {
                 throw new KeyNotFoundException($"Active trip with slug '{trimmedSlug}' was not found.");

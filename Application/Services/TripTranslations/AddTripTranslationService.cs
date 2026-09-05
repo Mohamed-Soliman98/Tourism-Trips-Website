@@ -1,6 +1,7 @@
 using Application.DTOs.TripTranslations;
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripTranslations;
 using Domain.Entitys;
 using FluentValidation;
@@ -10,14 +11,20 @@ namespace Application.Services.TripTranslations
 {
     public class AddTripTranslationService : IAddTripTranslationService
     {
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripTranslationRepository _tripTranslationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CreateTripTranslationDto> _validator;
 
         public AddTripTranslationService(
             IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
+            ITripTranslationRepository tripTranslationRepository,
             IValidator<CreateTripTranslationDto> validator)
         {
             _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripTranslationRepository = tripTranslationRepository;
             _validator = validator;
         }
 
@@ -31,11 +38,11 @@ namespace Application.Services.TripTranslations
 
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            if (await _unitOfWork.TripTranslations.ExistsByTripIdAndLanguageAsync(
+            if (await _tripTranslationRepository.ExistsByTripIdAndLanguageAsync(
                     tripId, dto.Language, cancellationToken))
             {
                 throw new InvalidOperationException(
@@ -54,7 +61,7 @@ namespace Application.Services.TripTranslations
                 MetaDescription = dto.MetaDescription?.Trim()
             };
 
-            _unitOfWork.TripTranslations.Add(translation);
+            _tripTranslationRepository.Add(translation);
 
             try
             {

@@ -1,22 +1,22 @@
 using Application.DTOs.Common;
 using Application.DTOs.Testimonials;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Testimonials;
 
 namespace Application.Services.Testimonials
 {
     public class GetTestimonialsService : IGetTestimonialsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITestimonialRepository _testimonialRepository;
 
-        public GetTestimonialsService(IUnitOfWork unitOfWork)
+        public GetTestimonialsService(ITestimonialRepository testimonialRepository)
         {
-            _unitOfWork = unitOfWork;
+            _testimonialRepository = testimonialRepository;
         }
 
         public async Task<PagedResult<TestimonialSummaryDto>> GetTestimonialsAsync(GetTestimonialsQueryDto query, CancellationToken cancellationToken)
         {
-            return await _unitOfWork.Testimonials.GetTestimonialsAsync(query, cancellationToken);
+            return await _testimonialRepository.GetTestimonialsAsync(query, cancellationToken);
         }
     }
 }

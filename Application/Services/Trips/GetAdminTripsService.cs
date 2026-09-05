@@ -1,6 +1,6 @@
 using Application.DTOs.Common;
 using Application.DTOs.Trips;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Trips;
 using Domain.Entity;
 using FluentValidation;
@@ -9,14 +9,14 @@ namespace Application.Services.Trips
 {
     public class GetAdminTripsService : IGetAdminTripsService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
         private readonly IValidator<GetAdminTripsQueryDto> _validator;
 
         public GetAdminTripsService(
-            IUnitOfWork unitOfWork,
+            ITripRepository tripRepository,
             IValidator<GetAdminTripsQueryDto> validator)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
             _validator = validator;
         }
 
@@ -26,7 +26,7 @@ namespace Application.Services.Trips
         {
             await _validator.ValidateAndThrowAsync(query, cancellationToken);
 
-            var (items, totalCount) = await _unitOfWork.Trips.GetAdminTripsAsync(query, cancellationToken);
+            var (items, totalCount) = await _tripRepository.GetAdminTripsAsync(query, cancellationToken);
 
             var dtos = items.Select(MapToAdminSummaryDto).ToList();
 

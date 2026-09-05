@@ -1,16 +1,20 @@
 using Application.DTOs.Trips;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.TripImages;
 
 namespace Application.Services.TripImages
 {
     public class GetTripGalleryService : IGetTripGalleryService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITripRepository _tripRepository;
+        private readonly ITripImageRepository _tripImageRepository;
 
-        public GetTripGalleryService(IUnitOfWork unitOfWork)
+        public GetTripGalleryService(
+            ITripRepository tripRepository,
+            ITripImageRepository tripImageRepository)
         {
-            _unitOfWork = unitOfWork;
+            _tripRepository = tripRepository;
+            _tripImageRepository = tripImageRepository;
         }
 
         public async Task<List<TripImageDto>> GetTripGalleryAsync(
@@ -20,11 +24,11 @@ namespace Application.Services.TripImages
             if (tripId == Guid.Empty)
                 throw new ArgumentException("Trip Id cannot be empty.", nameof(tripId));
 
-            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId, cancellationToken);
+            var trip = await _tripRepository.GetByIdAsync(tripId, cancellationToken);
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var images = await _unitOfWork.TripImages.GetByTripIdAsync(tripId, cancellationToken);
+            var images = await _tripImageRepository.GetByTripIdAsync(tripId, cancellationToken);
 
             return images
                 .Select(i => new TripImageDto(

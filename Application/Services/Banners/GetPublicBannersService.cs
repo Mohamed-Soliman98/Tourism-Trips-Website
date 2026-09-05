@@ -1,21 +1,21 @@
 using Application.DTOs.Banners;
 using Application.Interfaces.Banners;
-using Application.Interfaces.IUnitOfWork;
+using Application.Interfaces.Repositories;
 
 namespace Application.Services.Banners
 {
     public class GetPublicBannersService : IGetPublicBannersService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBannerRepository _bannerRepository;
 
-        public GetPublicBannersService(IUnitOfWork unitOfWork)
+        public GetPublicBannersService(IBannerRepository bannerRepository)
         {
-            _unitOfWork = unitOfWork;
+            _bannerRepository = bannerRepository;
         }
 
         public async Task<List<PublicBannerDto>> GetPublicBannersAsync(CancellationToken cancellationToken = default)
         {
-            var banners = await _unitOfWork.Banners.GetActiveBannersAsync(cancellationToken);
+            var banners = await _bannerRepository.GetActiveBannersAsync(cancellationToken);
 
             return banners.Select(b => new PublicBannerDto(
                 b.Id,
