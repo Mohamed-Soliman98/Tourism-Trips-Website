@@ -172,6 +172,7 @@ namespace Application.Services.Trips
                 trip.LongDescription = dto.LongDescription;
                 trip.MetaTitle = dto.MetaTitle;
                 trip.MetaDescription = dto.MetaDescription;
+                trip.Notes = dto.Notes;
                 trip.CategoryId = dto.CategoryId;
                 trip.DestinationId = dto.DestinationId;
                 trip.TourTypeId = dto.TourTypeId;
@@ -209,6 +210,30 @@ namespace Application.Services.Trips
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
                         Description = item.Description
+                    });
+                }
+
+                trip.Highlights.Clear();
+                foreach (var item in dto.Highlights)
+                {
+                    trip.Highlights.Add(new TripHighlight
+                    {
+                        Id = Guid.NewGuid(),
+                        TripId = trip.Id,
+                        Description = item.Description,
+                        DisplayOrder = item.DisplayOrder
+                    });
+                }
+
+                trip.WhatToBringItems.Clear();
+                foreach (var item in dto.WhatToBringItems)
+                {
+                    trip.WhatToBringItems.Add(new TripWhatToBring
+                    {
+                        Id = Guid.NewGuid(),
+                        TripId = trip.Id,
+                        Description = item.Description,
+                        DisplayOrder = item.DisplayOrder
                     });
                 }
 

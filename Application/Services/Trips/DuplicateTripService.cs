@@ -78,6 +78,7 @@ namespace Application.Services.Trips
                     MetaTitle = originalTrip.MetaTitle,
                     MetaDescription = originalTrip.MetaDescription,
                     OgImage = originalTrip.OgImage,
+                    Notes = originalTrip.Notes,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = null,
                     CategoryId = originalTrip.CategoryId,
@@ -163,6 +164,28 @@ namespace Application.Services.Trips
                     };
                     
                     _tripExcludeRepository.Add(newExclude);
+                }
+
+                foreach (var highlight in originalTrip.Highlights)
+                {
+                    newTrip.Highlights.Add(new TripHighlight
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = highlight.Description,
+                        DisplayOrder = highlight.DisplayOrder,
+                        TripId = newTrip.Id
+                    });
+                }
+
+                foreach (var item in originalTrip.WhatToBringItems)
+                {
+                    newTrip.WhatToBringItems.Add(new TripWhatToBring
+                    {
+                        Id = Guid.NewGuid(),
+                        Description = item.Description,
+                        DisplayOrder = item.DisplayOrder,
+                        TripId = newTrip.Id
+                    });
                 }
 
                 foreach (var faq in originalTrip.FAQs)

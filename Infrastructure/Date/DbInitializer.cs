@@ -21,7 +21,7 @@ namespace Infrastructure.Data
                     await roleManager.CreateAsync(new IdentityRole<Guid>
                     {
                         Name = role,
-                        NormalizedName = role.ToUpper()
+                        NormalizedName = role.ToUpperInvariant()
                     });
                 }
             }

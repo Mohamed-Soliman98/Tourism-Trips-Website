@@ -66,6 +66,9 @@ namespace Application.Validators.Trips
             RuleFor(x => x.PickupLocation)
                 .MaximumLength(500).WithMessage("Pickup location cannot exceed 500 characters.");
 
+            RuleFor(x => x.Notes)
+                .MaximumLength(5000).WithMessage("Notes cannot exceed 5000 characters.");
+
             RuleFor(x => x.CategoryId)
                 .NotEmpty().WithMessage("Category ID is required.");
 
@@ -106,6 +109,14 @@ namespace Application.Validators.Trips
             RuleForEach(x => x.Excludes)
                 .SetValidator(new CreateTripExcludeDtoValidator())
                 .When(x => x.Excludes != null);
+
+            RuleForEach(x => x.Highlights)
+                .SetValidator(new CreateTripHighlightDtoValidator())
+                .When(x => x.Highlights != null);
+
+            RuleForEach(x => x.WhatToBringItems)
+                .SetValidator(new CreateTripWhatToBringDtoValidator())
+                .When(x => x.WhatToBringItems != null);
 
             RuleForEach(x => x.FAQs)
                 .SetValidator(new CreateTripFAQDtoValidator())

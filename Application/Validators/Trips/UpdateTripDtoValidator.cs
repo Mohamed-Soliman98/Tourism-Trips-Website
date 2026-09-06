@@ -40,6 +40,32 @@ namespace Application.Validators.Trips
         }
     }
 
+    public class UpdateTripHighlightDtoValidator : AbstractValidator<UpdateTripHighlightDto>
+    {
+        public UpdateTripHighlightDtoValidator()
+        {
+            RuleFor(x => x.Description)
+                .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage("Highlight description is required.")
+                .MaximumLength(500).WithMessage("Highlight description cannot exceed 500 characters.");
+
+            RuleFor(x => x.DisplayOrder)
+                .GreaterThanOrEqualTo(0).WithMessage("Display order must be greater than or equal to 0.");
+        }
+    }
+
+    public class UpdateTripWhatToBringDtoValidator : AbstractValidator<UpdateTripWhatToBringDto>
+    {
+        public UpdateTripWhatToBringDtoValidator()
+        {
+            RuleFor(x => x.Description)
+                .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage("What to bring description is required.")
+                .MaximumLength(500).WithMessage("What to bring description cannot exceed 500 characters.");
+
+            RuleFor(x => x.DisplayOrder)
+                .GreaterThanOrEqualTo(0).WithMessage("Display order must be greater than or equal to 0.");
+        }
+    }
+
     public class UpdateFAQTranslationDtoValidator : AbstractValidator<UpdateFAQTranslationDto>
     {
         public UpdateFAQTranslationDtoValidator()
@@ -177,6 +203,9 @@ namespace Application.Validators.Trips
             RuleFor(x => x.PickupLocation)
                 .MaximumLength(500).WithMessage("Pickup location cannot exceed 500 characters.");
 
+            RuleFor(x => x.Notes)
+                .MaximumLength(5000).WithMessage("Notes cannot exceed 5000 characters.");
+
             RuleFor(x => x.CategoryId)
                 .NotEmpty().WithMessage("Category ID is required.");
 
@@ -215,6 +244,14 @@ namespace Application.Validators.Trips
             RuleForEach(x => x.Excludes)
                 .SetValidator(new UpdateTripExcludeDtoValidator())
                 .When(x => x.Excludes != null);
+
+            RuleForEach(x => x.Highlights)
+                .SetValidator(new UpdateTripHighlightDtoValidator())
+                .When(x => x.Highlights != null);
+
+            RuleForEach(x => x.WhatToBringItems)
+                .SetValidator(new UpdateTripWhatToBringDtoValidator())
+                .When(x => x.WhatToBringItems != null);
 
             RuleForEach(x => x.FAQs)
                 .SetValidator(new UpdateTripFAQDtoValidator())

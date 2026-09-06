@@ -1,6 +1,7 @@
 using Domain.Enum;
 using Microsoft.AspNetCore.Http;
 
+
 namespace Application.DTOs.Trips
 {
     public sealed record CreateTripDto
@@ -34,9 +35,13 @@ namespace Application.DTOs.Trips
         public IFormFile? OgImage { get; set; }
         public List<string>? GalleryAltTexts { get; set; }
 
+        public string? Notes { get; set; }
+
         public List<CreateTripItineraryItemDto> ItineraryItems { get; set; } = new();
         public List<CreateTripIncludeDto> Includes { get; set; } = new();
         public List<CreateTripExcludeDto> Excludes { get; set; } = new();
+        public List<CreateTripHighlightDto> Highlights { get; set; } = new();
+        public List<CreateTripWhatToBringDto> WhatToBringItems { get; set; } = new();
         public List<CreateTripFAQDto> FAQs { get; set; } = new();
         public List<CreateTripTranslationDto> Translations { get; set; } = new();
     }

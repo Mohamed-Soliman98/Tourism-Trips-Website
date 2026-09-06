@@ -33,6 +33,8 @@ namespace Infrastructure.Persistence
         public DbSet<TripItineraryItem> TripItineraryItems => Set<TripItineraryItem>();
         public DbSet<TripInclude> TripIncludes => Set<TripInclude>();
         public DbSet<TripExclude> TripExcludes => Set<TripExclude>();
+        public DbSet<TripHighlight> TripHighlights => Set<TripHighlight>();
+        public DbSet<TripWhatToBring> TripWhatToBrings => Set<TripWhatToBring>();
         public DbSet<TripTranslation> TripTranslations => Set<TripTranslation>();
         public DbSet<FAQ> FAQs => Set<FAQ>();
         public DbSet<FAQTranslation> FAQTranslations => Set<FAQTranslation>();

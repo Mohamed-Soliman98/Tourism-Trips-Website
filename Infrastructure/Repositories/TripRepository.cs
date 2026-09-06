@@ -35,6 +35,8 @@ namespace Infrastructure.Repositories
                 .Include(t => t.ItineraryItems)
                 .Include(t => t.Includes)
                 .Include(t => t.Excludes)
+                .Include(t => t.Highlights)
+                .Include(t => t.WhatToBringItems)
                 .Include(t => t.FAQs)
                 .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
@@ -56,15 +58,15 @@ namespace Infrastructure.Repositories
                 .Include(t => t.ItineraryItems)
                 .Include(t => t.Includes)
                 .Include(t => t.Excludes)
+                .Include(t => t.Highlights)
+                .Include(t => t.WhatToBringItems)
                 .Include(t => t.FAQs)
                     .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
                 .FirstOrDefaultAsync(t => t.Slug.ToLower() == normalizedSlug && t.Status == TripStatus.Active, cancellationToken);
         }
 
-        public async Task<(List<Trip> Items, int TotalCount)> GetPublicTripsAsync(
-            GetPublicTripsQueryDto query,
-            CancellationToken cancellationToken = default)
+        public async Task<(List<Trip> Items, int TotalCount)> GetPublicTripsAsync(GetPublicTripsQueryDto query,CancellationToken cancellationToken = default)
         {
             var queryable = _dbSet
                 .AsNoTracking()
@@ -99,6 +101,7 @@ namespace Infrastructure.Repositories
                 .Include(t => t.Category)
                 .Include(t => t.Destination)
                 .Include(t => t.TourType)
+                .Include(t => t.Images.Where(i => i.IsCover))
                 .OrderBy(t => t.DisplayOrder)
                 .ThenBy(t => t.Id)
                 .Skip((query.Page - 1) * query.PageSize)
@@ -108,9 +111,7 @@ namespace Infrastructure.Repositories
             return (items, totalCount);
         }
 
-        public async Task<(List<Trip> Items, int TotalCount)> GetAdminTripsAsync(
-            GetAdminTripsQueryDto query,
-            CancellationToken cancellationToken = default)
+        public async Task<(List<Trip> Items, int TotalCount)> GetAdminTripsAsync( GetAdminTripsQueryDto query,CancellationToken cancellationToken = default)
         {
             var queryable = _dbSet
                 .AsNoTracking();
@@ -179,6 +180,7 @@ namespace Infrastructure.Repositories
                 .Include(t => t.Category)
                 .Include(t => t.Destination)
                 .Include(t => t.TourType)
+                .Include(t => t.Images.Where(i => i.IsCover))
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
                 .ToListAsync(cancellationToken);
@@ -198,6 +200,8 @@ namespace Infrastructure.Repositories
                 .Include(t => t.ItineraryItems)
                 .Include(t => t.Includes)
                 .Include(t => t.Excludes)
+                .Include(t => t.Highlights)
+                .Include(t => t.WhatToBringItems)
                 .Include(t => t.FAQs)
                     .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
@@ -222,6 +226,8 @@ namespace Infrastructure.Repositories
                 .Include(t => t.ItineraryItems)
                 .Include(t => t.Includes)
                 .Include(t => t.Excludes)
+                .Include(t => t.Highlights)
+                .Include(t => t.WhatToBringItems)
                 .Include(t => t.FAQs)
                     .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)

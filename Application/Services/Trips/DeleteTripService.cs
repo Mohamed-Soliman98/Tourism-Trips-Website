@@ -10,16 +10,12 @@ namespace Application.Services.Trips
     {
         private readonly ITripRepository _tripRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IFileStorageService _fileStorage;
 
-        public DeleteTripService(
-            IUnitOfWork unitOfWork,
-            ITripRepository tripRepository,
-            IFileStorageService fileStorage)
+        public DeleteTripService(IUnitOfWork unitOfWork,ITripRepository tripRepository)
         {
             _unitOfWork = unitOfWork;
             _tripRepository = tripRepository;
-            _fileStorage = fileStorage;
+           
         }
 
         public async Task<TripDeletedResponseDto> DeleteTripAsync(Guid id, CancellationToken cancellationToken = default)
@@ -35,26 +31,16 @@ namespace Application.Services.Trips
                 throw new KeyNotFoundException($"Trip with ID '{id}' was not found.");
             }
 
-            var physicalFilesToDelete = new List<string>();
-
-            if (!string.IsNullOrWhiteSpace(trip.OgImage))
-            {
-                physicalFilesToDelete.Add(trip.OgImage);
-            }
-
-            foreach (var img in trip.Images)
-            {
-                if (!string.IsNullOrWhiteSpace(img.ImageUrl))
-                {
-                    physicalFilesToDelete.Add(img.ImageUrl);
-                }
-            }
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                _tripRepository.Remove(trip);
+                trip.IsDeleted = true;
+                trip.DeletedAt = DateTime.UtcNow;
+                trip.UpdatedAt = DateTime.UtcNow;
+
+                _tripRepository.Update(trip);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
@@ -64,10 +50,7 @@ namespace Application.Services.Trips
                 throw;
             }
 
-            foreach (var filePath in physicalFilesToDelete)
-            {
-                await _fileStorage.DeleteAsync(filePath);
-            }
+            
 
             return new TripDeletedResponseDto("Trip deleted successfully.");
         }

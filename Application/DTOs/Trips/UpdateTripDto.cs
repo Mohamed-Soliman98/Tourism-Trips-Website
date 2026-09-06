@@ -20,6 +20,18 @@ namespace Application.DTOs.Trips
         public string Description { get; set; } = string.Empty;
     }
 
+    public sealed record UpdateTripHighlightDto
+    {
+        public string Description { get; set; } = string.Empty;
+        public int DisplayOrder { get; set; }
+    }
+
+    public sealed record UpdateTripWhatToBringDto
+    {
+        public string Description { get; set; } = string.Empty;
+        public int DisplayOrder { get; set; }
+    }
+
     public sealed record UpdateFAQTranslationDto
     {
         public Language Language { get; set; }
@@ -78,9 +90,13 @@ namespace Application.DTOs.Trips
         public IFormFile? OgImage { get; set; }
         public List<string>? GalleryAltTexts { get; set; }
 
+        public string? Notes { get; set; }
+
         public List<UpdateTripItineraryItemDto> ItineraryItems { get; set; } = new();
         public List<UpdateTripIncludeDto> Includes { get; set; } = new();
         public List<UpdateTripExcludeDto> Excludes { get; set; } = new();
+        public List<UpdateTripHighlightDto> Highlights { get; set; } = new();
+        public List<UpdateTripWhatToBringDto> WhatToBringItems { get; set; } = new();
         public List<UpdateTripFAQDto> FAQs { get; set; } = new();
         public List<UpdateTripTranslationDto> Translations { get; set; } = new();
     }

@@ -98,6 +98,7 @@ namespace Application.Services.Trips
 
                     MetaTitle = dto.MetaTitle,
                     MetaDescription = dto.MetaDescription,
+                    Notes = dto.Notes,
 
                     CategoryId = dto.CategoryId,
                     DestinationId = dto.DestinationId,
@@ -180,6 +181,28 @@ namespace Application.Services.Trips
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
                         Description = item.Description
+                    });
+                }
+
+                foreach (var item in dto.Highlights)
+                {
+                    trip.Highlights.Add(new TripHighlight
+                    {
+                        Id = Guid.NewGuid(),
+                        TripId = trip.Id,
+                        Description = item.Description,
+                        DisplayOrder = item.DisplayOrder
+                    });
+                }
+
+                foreach (var item in dto.WhatToBringItems)
+                {
+                    trip.WhatToBringItems.Add(new TripWhatToBring
+                    {
+                        Id = Guid.NewGuid(),
+                        TripId = trip.Id,
+                        Description = item.Description,
+                        DisplayOrder = item.DisplayOrder
                     });
                 }
 

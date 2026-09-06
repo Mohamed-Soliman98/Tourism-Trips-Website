@@ -30,6 +30,9 @@ namespace Domain.Entity
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
         public string? OgImage { get; set; }
+        public string? Notes { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
@@ -43,6 +46,8 @@ namespace Domain.Entity
         public ICollection<TripItineraryItem> ItineraryItems { get; set; }= new List<TripItineraryItem>();
         public ICollection<TripInclude> Includes { get; set; }= new List<TripInclude>();
         public ICollection<TripExclude> Excludes { get; set; }= new List<TripExclude>();
+        public ICollection<TripHighlight> Highlights { get; set; } = new List<TripHighlight>();
+        public ICollection<TripWhatToBring> WhatToBringItems { get; set; } = new List<TripWhatToBring>();
         public ICollection<FAQ> FAQs { get; set; } = new List<FAQ>();
         public ICollection<TripTranslation> Translations { get; set; }= new List<TripTranslation>();
         public ICollection<BookingInquiry> BookingInquiries { get; set; } = new List<BookingInquiry>();

@@ -42,6 +42,18 @@ namespace Application.DTOs.Trips
         string Description
     );
 
+    public sealed record TripHighlightDto(
+        Guid Id,
+        string Description,
+        int DisplayOrder
+    );
+
+    public sealed record TripWhatToBringDto(
+        Guid Id,
+        string Description,
+        int DisplayOrder
+    );
+
     public sealed record FAQTranslationDto(
         Guid Id,
         Language Language,
@@ -90,6 +102,7 @@ namespace Application.DTOs.Trips
         string? OgImage,
         string? CoverImage,
         string? CoverImageAltText,
+        string? Notes,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         CategoryDto Category,
@@ -99,6 +112,8 @@ namespace Application.DTOs.Trips
         List<TripItineraryItemDto> ItineraryItems,
         List<TripIncludeDto> Includes,
         List<TripExcludeDto> Excludes,
+        List<TripHighlightDto> Highlights,
+        List<TripWhatToBringDto> WhatToBringItems,
         List<TripFAQDto> FAQs,
         TripTranslationDto? Translation
     );

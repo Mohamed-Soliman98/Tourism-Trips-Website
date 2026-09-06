@@ -2,6 +2,7 @@ using Application.DTOs.Trips;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Trips;
 using Domain.Entity;
+using Domain.Enum;
 
 namespace Application.Services.Trips
 {
@@ -33,6 +34,8 @@ namespace Application.Services.Trips
         private static TripDetailsResponseDto MapToDto(Trip trip)
         {
             var coverImage = trip.Images?.FirstOrDefault(i => i.IsCover);
+            var translation = trip.Translations?.FirstOrDefault(t => t.Language == Language.English)
+                           ?? trip.Translations?.FirstOrDefault();
 
             return new TripDetailsResponseDto(
                 Id: trip.Id,
@@ -56,6 +59,7 @@ namespace Application.Services.Trips
                 OgImage: trip.OgImage,
                 CoverImage: coverImage?.ImageUrl,
                 CoverImageAltText: coverImage?.AltText,
+                Notes: trip.Notes,
                 CreatedAt: trip.CreatedAt,
                 UpdatedAt: trip.UpdatedAt,
                 Category: new CategoryDto(
@@ -97,6 +101,20 @@ namespace Application.Services.Trips
                         e.Id,
                         e.Description))
                     .ToList() ?? new List<TripExcludeDto>(),
+                Highlights: trip.Highlights?
+                    .OrderBy(h => h.DisplayOrder)
+                    .Select(h => new TripHighlightDto(
+                        h.Id,
+                        h.Description,
+                        h.DisplayOrder))
+                    .ToList() ?? new List<TripHighlightDto>(),
+                WhatToBringItems: trip.WhatToBringItems?
+                    .OrderBy(w => w.DisplayOrder)
+                    .Select(w => new TripWhatToBringDto(
+                        w.Id,
+                        w.Description,
+                        w.DisplayOrder))
+                    .ToList() ?? new List<TripWhatToBringDto>(),
                 FAQs: trip.FAQs?
                     .OrderBy(f => f.DisplayOrder)
                     .Select(f => new TripFAQDto(
@@ -113,7 +131,14 @@ namespace Application.Services.Trips
                                 ft.Answer))
                             .ToList() ?? new List<FAQTranslationDto>()))
                     .ToList() ?? new List<TripFAQDto>(),
-                Translation: null 
+                Translation: translation != null ? new TripTranslationDto(
+                    translation.Id,
+                    translation.Language,
+                    translation.Title,
+                    translation.ShortDescription,
+                    translation.LongDescription,
+                    translation.MetaTitle,
+                    translation.MetaDescription) : null
             );
         }
     }

@@ -1,8 +1,7 @@
-﻿using Infrastructure.Configurations;
+using Domain.Entity;
 using Domain.Entitys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Domain.Entity;
 
 namespace Infrastructure.Configurations
 {
@@ -40,6 +39,7 @@ namespace Infrastructure.Configurations
 
             builder.Property(t => t.MetaDescription)
                 .HasMaxLength(500);
+
             builder.Property(t => t.AdultPrice)
                 .HasPrecision(18, 2);
 
@@ -54,6 +54,11 @@ namespace Infrastructure.Configurations
 
             builder.Property(t => t.OgImage)
                 .HasMaxLength(500);
+
+            builder.Property(t => t.Notes)
+                .HasMaxLength(5000);
+
+            builder.HasQueryFilter(t => !t.IsDeleted);
 
             builder.HasOne(t => t.Category)
                 .WithMany(c => c.Trips)
