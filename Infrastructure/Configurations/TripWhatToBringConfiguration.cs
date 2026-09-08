@@ -10,10 +10,6 @@ namespace Infrastructure.Configurations
         {
             builder.HasKey(w => w.Id);
 
-            builder.Property(w => w.Description)
-                .IsRequired()
-                .HasMaxLength(500);
-
             builder.Property(w => w.DisplayOrder)
                 .IsRequired();
 

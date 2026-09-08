@@ -4,6 +4,7 @@ using Application.Interfaces.IUnitOfWork;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.TripIncludes;
 using Domain.Entitys;
+using Domain.Enum;
 using FluentValidation;
 
 namespace Application.Services.TripIncludes
@@ -45,17 +46,39 @@ namespace Application.Services.TripIncludes
             {
                 Id = Guid.NewGuid(),
                 TripId = tripId,
-                Description = dto.Description.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
+
+            include.Translations.Add(new TripIncludeTranslation
+            {
+                Id = Guid.NewGuid(),
+                TripIncludeId = include.Id,
+                Language = Language.English,
+                Description = dto.Description.English?.Trim() ?? string.Empty
+            });
+
+            if (!string.IsNullOrWhiteSpace(dto.Description.German))
+            {
+                include.Translations.Add(new TripIncludeTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    TripIncludeId = include.Id,
+                    Language = Language.German,
+                    Description = dto.Description.German.Trim()
+                });
+            }
 
             _tripIncludeRepository.Add(include);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            // Get the English description from the translation for the response
+            var englishTranslation = include.Translations.FirstOrDefault(t => t.Language == Language.English);
+            var description = englishTranslation?.Description ?? string.Empty;
+
             return new TripIncludeAddedResponseDto(
                 include.Id,
                 include.TripId,
-                include.Description);
+                description);
         }
     }
 }

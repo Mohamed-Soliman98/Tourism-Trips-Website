@@ -58,7 +58,8 @@ namespace Application.Services.TripTranslations
                 ShortDescription = dto.ShortDescription.Trim(),
                 LongDescription = dto.LongDescription.Trim(),
                 MetaTitle = dto.MetaTitle?.Trim(),
-                MetaDescription = dto.MetaDescription?.Trim()
+                MetaDescription = dto.MetaDescription?.Trim(),
+                PickupLocation = dto.PickupLocation?.Trim()
             };
 
             _tripTranslationRepository.Add(translation);
@@ -81,7 +82,8 @@ namespace Application.Services.TripTranslations
                 translation.ShortDescription,
                 translation.LongDescription,
                 translation.MetaTitle,
-                translation.MetaDescription);
+                translation.MetaDescription,
+                translation.PickupLocation);
         }
     }
 }

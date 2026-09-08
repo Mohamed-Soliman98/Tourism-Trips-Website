@@ -4,6 +4,7 @@ using Application.Interfaces.IUnitOfWork;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.TripFAQs;
 using Domain.Entitys;
+using Domain.Enum;
 using FluentValidation;
 
 namespace Application.Services.TripFAQs
@@ -45,12 +46,33 @@ namespace Application.Services.TripFAQs
             {
                 Id = Guid.NewGuid(),
                 TripId = tripId,
-                Question = dto.Question.Trim(),
-                Answer = dto.Answer.Trim(),
+                Question = dto.Question.English?.Trim() ?? string.Empty,
+                Answer = dto.Answer.English?.Trim() ?? string.Empty,
                 DisplayOrder = dto.DisplayOrder,
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
+
+            faq.Translations.Add(new FAQTranslation
+            {
+                Id = Guid.NewGuid(),
+                FAQId = faq.Id,
+                Language = Language.English,
+                Question = dto.Question.English?.Trim() ?? string.Empty,
+                Answer = dto.Answer.English?.Trim() ?? string.Empty
+            });
+
+            if (!string.IsNullOrWhiteSpace(dto.Question.German) || !string.IsNullOrWhiteSpace(dto.Answer.German))
+            {
+                faq.Translations.Add(new FAQTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    FAQId = faq.Id,
+                    Language = Language.German,
+                    Question = string.IsNullOrWhiteSpace(dto.Question.German) ? (dto.Question.English?.Trim() ?? string.Empty) : dto.Question.German.Trim(),
+                    Answer = string.IsNullOrWhiteSpace(dto.Answer.German) ? (dto.Answer.English?.Trim() ?? string.Empty) : dto.Answer.German.Trim()
+                });
+            }
 
             _faqRepository.Add(faq);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

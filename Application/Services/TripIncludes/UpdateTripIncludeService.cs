@@ -3,6 +3,8 @@ using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.TripIncludes;
+using Domain.Entitys;
+using Domain.Enum;
 using FluentValidation;
 
 namespace Application.Services.TripIncludes
@@ -44,7 +46,7 @@ namespace Application.Services.TripIncludes
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var include = await _tripIncludeRepository.GetByIdAsync(includeId, cancellationToken);
+            var include = await _tripIncludeRepository.GetByIdWithTranslationsAsync(includeId, cancellationToken);
             if (include == null)
                 throw new KeyNotFoundException($"Trip include with ID '{includeId}' was not found.");
 
@@ -52,15 +54,57 @@ namespace Application.Services.TripIncludes
                 throw new InvalidOperationException(
                     $"Trip include '{includeId}' does not belong to trip '{tripId}'.");
 
-            include.Description = dto.Description.Trim();
             include.UpdatedAt = DateTime.UtcNow;
+
+            var englishDescription = dto.Description.English?.Trim() ?? string.Empty;
+            var germanDescription = dto.Description.German?.Trim();
+
+            // Synchronize translations instead of deleting and recreating rows:
+            // update the existing translation in place when present, add it when missing.
+            var englishTranslation = include.Translations.FirstOrDefault(t => t.Language == Language.English);
+            if (englishTranslation == null)
+            {
+                include.Translations.Add(new TripIncludeTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    TripIncludeId = include.Id,
+                    Language = Language.English,
+                    Description = englishDescription
+                });
+            }
+            else
+            {
+                englishTranslation.Description = englishDescription;
+            }
+
+            var germanTranslation = include.Translations.FirstOrDefault(t => t.Language == Language.German);
+            if (string.IsNullOrWhiteSpace(germanDescription))
+            {
+                // Language removed from the DTO: remove an existing German translation if present.
+                if (germanTranslation != null)
+                    include.Translations.Remove(germanTranslation);
+            }
+            else if (germanTranslation == null)
+            {
+                include.Translations.Add(new TripIncludeTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    TripIncludeId = include.Id,
+                    Language = Language.German,
+                    Description = germanDescription
+                });
+            }
+            else
+            {
+                germanTranslation.Description = germanDescription;
+            }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new TripIncludeUpdatedResponseDto(
                 include.Id,
                 include.TripId,
-                include.Description);
+                englishDescription);
         }
     }
 }

@@ -1,73 +1,57 @@
+using Application.DTOs.Common;
 using Domain.Enum;
-using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
 
 namespace Application.DTOs.Trips
 {
     public sealed record UpdateTripItineraryItemDto
     {
         public int DisplayOrder { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
+        public LocalizedTextDto Title { get; set; } = new();
+        public LocalizedTextDto? Description { get; set; }
     }
 
     public sealed record UpdateTripIncludeDto
     {
-        public string Description { get; set; } = string.Empty;
+        public LocalizedTextDto Description { get; set; } = new();
     }
 
     public sealed record UpdateTripExcludeDto
     {
-        public string Description { get; set; } = string.Empty;
+        public LocalizedTextDto Description { get; set; } = new();
     }
 
     public sealed record UpdateTripHighlightDto
     {
-        public string Description { get; set; } = string.Empty;
+        public LocalizedTextDto Description { get; set; } = new();
         public int DisplayOrder { get; set; }
     }
 
     public sealed record UpdateTripWhatToBringDto
     {
-        public string Description { get; set; } = string.Empty;
+        public LocalizedTextDto Description { get; set; } = new();
         public int DisplayOrder { get; set; }
-    }
-
-    public sealed record UpdateFAQTranslationDto
-    {
-        public Language Language { get; set; }
-        public string Question { get; set; } = string.Empty;
-        public string Answer { get; set; } = string.Empty;
     }
 
     public sealed record UpdateTripFAQDto
     {
-        public string Question { get; set; } = string.Empty;
-        public string Answer { get; set; } = string.Empty;
+        public LocalizedTextDto Question { get; set; } = new();
+        public LocalizedTextDto Answer { get; set; } = new();
         public int DisplayOrder { get; set; }
         public bool IsActive { get; set; } = true;
-        public List<UpdateFAQTranslationDto> Translations { get; set; } = new();
-    }
-
-    public sealed record UpdateTripTranslationDto
-    {
-        public Language Language { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string ShortDescription { get; set; } = string.Empty;
-        public string LongDescription { get; set; } = string.Empty;
-        public string? MetaTitle { get; set; }
-        public string? MetaDescription { get; set; }
     }
 
     public sealed record UpdateTripDto
     {
-        public string Title { get; set; } = string.Empty;
+        public LocalizedTextDto Title { get; set; } = new();
         public string Slug { get; set; } = string.Empty;
         public TripStatus Status { get; set; }
         public bool IsFeatured { get; set; }
         public int DisplayOrder { get; set; }
         public int Duration { get; set; }
         public DurationUnit DurationUnit { get; set; }
-        public string? PickupLocation { get; set; }
+        public LocalizedTextDto? PickupLocation { get; set; }
         public string Currency { get; set; } = "EUR";
 
         public decimal AdultPrice { get; set; }
@@ -75,20 +59,14 @@ namespace Application.DTOs.Trips
         public decimal? OldPrice { get; set; }
         public bool IsPriceFrom { get; set; }
 
-        public string ShortDescription { get; set; } = string.Empty;
-        public string LongDescription { get; set; } = string.Empty;
-        public string? MetaTitle { get; set; }
-        public string? MetaDescription { get; set; }
+        public LocalizedTextDto ShortDescription { get; set; } = new();
+        public LocalizedTextDto LongDescription { get; set; } = new();
+        public LocalizedTextDto? MetaTitle { get; set; }
+        public LocalizedTextDto? MetaDescription { get; set; }
 
         public Guid CategoryId { get; set; }
         public Guid DestinationId { get; set; }
         public Guid TourTypeId { get; set; }
-
-        public IFormFile? CoverImage { get; set; }
-        public string? CoverImageAltText { get; set; }
-        public List<IFormFile> GalleryImages { get; set; } = new();
-        public IFormFile? OgImage { get; set; }
-        public List<string>? GalleryAltTexts { get; set; }
 
         public string? Notes { get; set; }
 
@@ -98,6 +76,5 @@ namespace Application.DTOs.Trips
         public List<UpdateTripHighlightDto> Highlights { get; set; } = new();
         public List<UpdateTripWhatToBringDto> WhatToBringItems { get; set; } = new();
         public List<UpdateTripFAQDto> FAQs { get; set; } = new();
-        public List<UpdateTripTranslationDto> Translations { get; set; } = new();
     }
 }

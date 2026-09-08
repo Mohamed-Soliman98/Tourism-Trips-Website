@@ -3,6 +3,8 @@ using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.TripFAQs;
+using Domain.Entitys;
+using Domain.Enum;
 using FluentValidation;
 
 namespace Application.Services.TripFAQs
@@ -52,11 +54,33 @@ namespace Application.Services.TripFAQs
                 throw new InvalidOperationException(
                     $"Trip FAQ '{faqId}' does not belong to trip '{tripId}'.");
 
-            faq.Question = dto.Question.Trim();
-            faq.Answer = dto.Answer.Trim();
+            faq.Question = dto.Question.English?.Trim() ?? string.Empty;
+            faq.Answer = dto.Answer.English?.Trim() ?? string.Empty;
             faq.DisplayOrder = dto.DisplayOrder;
             faq.IsActive = dto.IsActive;
             faq.UpdatedAt = DateTime.UtcNow;
+
+            faq.Translations.Clear();
+            faq.Translations.Add(new FAQTranslation
+            {
+                Id = Guid.NewGuid(),
+                FAQId = faq.Id,
+                Language = Language.English,
+                Question = dto.Question.English?.Trim() ?? string.Empty,
+                Answer = dto.Answer.English?.Trim() ?? string.Empty
+            });
+
+            if (!string.IsNullOrWhiteSpace(dto.Question.German) || !string.IsNullOrWhiteSpace(dto.Answer.German))
+            {
+                faq.Translations.Add(new FAQTranslation
+                {
+                    Id = Guid.NewGuid(),
+                    FAQId = faq.Id,
+                    Language = Language.German,
+                    Question = string.IsNullOrWhiteSpace(dto.Question.German) ? (dto.Question.English?.Trim() ?? string.Empty) : dto.Question.German.Trim(),
+                    Answer = string.IsNullOrWhiteSpace(dto.Answer.German) ? (dto.Answer.English?.Trim() ?? string.Empty) : dto.Answer.German.Trim()
+                });
+            }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

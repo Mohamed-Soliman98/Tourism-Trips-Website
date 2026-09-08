@@ -1,27 +1,25 @@
 using Application.DTOs.Trips;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 
 namespace Application.Validators.Trips
 {
     public class CreateTripDtoValidator : AbstractValidator<CreateTripDto>
     {
-        private static readonly Dictionary<string, string> AllowedFiles =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                [".png"] = "image/png",
-                [".jpg"] = "image/jpeg",
-                [".jpeg"] = "image/jpeg",
-                [".webp"] = "image/webp"
-            };
-
-        private const long MaxFileSizeBytes = 5 * 1024 * 1024; 
-
         public CreateTripDtoValidator()
         {
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Title is required.")
-                .MaximumLength(200).WithMessage("Title cannot exceed 200 characters.");
+                .NotNull().WithMessage("Title is required.");
+
+            When(x => x.Title != null, () =>
+            {
+                RuleFor(x => x.Title.English)
+                    .NotEmpty().WithMessage("English title is required.")
+                    .MaximumLength(200).WithMessage("English title cannot exceed 200 characters.");
+
+                RuleFor(x => x.Title.German)
+                    .MaximumLength(200).When(x => !string.IsNullOrEmpty(x.Title.German))
+                    .WithMessage("German title cannot exceed 200 characters.");
+            });
 
             RuleFor(x => x.Slug)
                 .NotEmpty().WithMessage("Slug is required.")
@@ -50,21 +48,65 @@ namespace Application.Validators.Trips
                 .WithMessage("Old price cannot be negative.");
 
             RuleFor(x => x.ShortDescription)
-                .NotEmpty().WithMessage("Short description is required.")
-                .MaximumLength(500).WithMessage("Short description cannot exceed 500 characters.");
+                .NotNull().WithMessage("Short description is required.");
+
+            When(x => x.ShortDescription != null, () =>
+            {
+                RuleFor(x => x.ShortDescription.English)
+                    .NotEmpty().WithMessage("English short description is required.")
+                    .MaximumLength(500).WithMessage("English short description cannot exceed 500 characters.");
+
+                RuleFor(x => x.ShortDescription.German)
+                    .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.ShortDescription.German))
+                    .WithMessage("German short description cannot exceed 500 characters.");
+            });
 
             RuleFor(x => x.LongDescription)
-                .NotEmpty().WithMessage("Long description is required.")
-                .MaximumLength(5000).WithMessage("Long description cannot exceed 5000 characters.");
+                .NotNull().WithMessage("Long description is required.");
 
-            RuleFor(x => x.MetaTitle)
-                .MaximumLength(200).WithMessage("Meta title cannot exceed 200 characters.");
+            When(x => x.LongDescription != null, () =>
+            {
+                RuleFor(x => x.LongDescription.English)
+                    .NotEmpty().WithMessage("English long description is required.")
+                    .MaximumLength(5000).WithMessage("English long description cannot exceed 5000 characters.");
 
-            RuleFor(x => x.MetaDescription)
-                .MaximumLength(500).WithMessage("Meta description cannot exceed 500 characters.");
+                RuleFor(x => x.LongDescription.German)
+                    .MaximumLength(5000).When(x => !string.IsNullOrEmpty(x.LongDescription.German))
+                    .WithMessage("German long description cannot exceed 5000 characters.");
+            });
 
-            RuleFor(x => x.PickupLocation)
-                .MaximumLength(500).WithMessage("Pickup location cannot exceed 500 characters.");
+            When(x => x.MetaTitle != null, () =>
+            {
+                RuleFor(x => x.MetaTitle!.English)
+                    .MaximumLength(200).When(x => !string.IsNullOrEmpty(x.MetaTitle?.English))
+                    .WithMessage("English meta title cannot exceed 200 characters.");
+
+                RuleFor(x => x.MetaTitle!.German)
+                    .MaximumLength(200).When(x => !string.IsNullOrEmpty(x.MetaTitle?.German))
+                    .WithMessage("German meta title cannot exceed 200 characters.");
+            });
+
+            When(x => x.MetaDescription != null, () =>
+            {
+                RuleFor(x => x.MetaDescription!.English)
+                    .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.MetaDescription?.English))
+                    .WithMessage("English meta description cannot exceed 500 characters.");
+
+                RuleFor(x => x.MetaDescription!.German)
+                    .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.MetaDescription?.German))
+                    .WithMessage("German meta description cannot exceed 500 characters.");
+            });
+
+            When(x => x.PickupLocation != null, () =>
+            {
+                RuleFor(x => x.PickupLocation!.English)
+                    .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.PickupLocation?.English))
+                    .WithMessage("English pickup location cannot exceed 500 characters.");
+
+                RuleFor(x => x.PickupLocation!.German)
+                    .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.PickupLocation?.German))
+                    .WithMessage("German pickup location cannot exceed 500 characters.");
+            });
 
             RuleFor(x => x.Notes)
                 .MaximumLength(5000).WithMessage("Notes cannot exceed 5000 characters.");
@@ -77,108 +119,24 @@ namespace Application.Validators.Trips
 
             RuleFor(x => x.TourTypeId)
                 .NotEmpty().WithMessage("Tour Type ID is required.");
-            
-            RuleFor(x => x.OgImage)
-                .MustAsync(BeAValidImageFileAsync)
-                .When(x => x.OgImage != null)
-                .WithMessage("OG image must be a valid non-empty image file (.jpg, .jpeg, .png, .webp) with matching MIME type and file signature up to 5MB.");
-
-            RuleForEach(x => x.GalleryImages)
-                .NotNull().WithMessage("Gallery image item cannot be null.")
-                .MustAsync(BeAValidImageFileAsync).When(x => x.GalleryImages != null)
-                .WithMessage("Each gallery image must be a valid non-empty image file (.jpg, .jpeg, .png, .webp) with matching MIME type and file signature up to 5MB.");
-
-           
-            RuleFor(x => x.Translations)
-                .Must(translations =>
-                {
-                    if (translations == null || translations.Count == 0) return true;
-                    var languages = translations.Select(t => t.Language).ToList();
-                    return languages.Count == languages.Distinct().Count();
-                })
-                .WithMessage("Duplicate translation languages are not allowed for the same Trip.");
 
             RuleForEach(x => x.ItineraryItems)
-                .SetValidator(new CreateTripItineraryItemDtoValidator())
-                .When(x => x.ItineraryItems != null);
+                .SetValidator(new CreateTripItineraryItemDtoValidator());
 
             RuleForEach(x => x.Includes)
-                .SetValidator(new CreateTripIncludeDtoValidator())
-                .When(x => x.Includes != null);
+                .SetValidator(new CreateTripIncludeDtoValidator());
 
             RuleForEach(x => x.Excludes)
-                .SetValidator(new CreateTripExcludeDtoValidator())
-                .When(x => x.Excludes != null);
+                .SetValidator(new CreateTripExcludeDtoValidator());
 
             RuleForEach(x => x.Highlights)
-                .SetValidator(new CreateTripHighlightDtoValidator())
-                .When(x => x.Highlights != null);
+                .SetValidator(new CreateTripHighlightDtoValidator());
 
             RuleForEach(x => x.WhatToBringItems)
-                .SetValidator(new CreateTripWhatToBringDtoValidator())
-                .When(x => x.WhatToBringItems != null);
+                .SetValidator(new CreateTripWhatToBringDtoValidator());
 
             RuleForEach(x => x.FAQs)
-                .SetValidator(new CreateTripFAQDtoValidator())
-                .When(x => x.FAQs != null);
-
-            RuleForEach(x => x.Translations)
-                .SetValidator(new CreateTripTranslationDtoValidator())
-                .When(x => x.Translations != null);
-        }
-
-        private static async Task<bool> BeAValidImageFileAsync(IFormFile? file, CancellationToken cancellationToken)
-        {
-            if (file == null) return true;
-
-            if (file.Length == 0 || file.Length > MaxFileSizeBytes)
-                return false;
-
-            var extension = Path.GetExtension(file.FileName);
-            if (string.IsNullOrEmpty(extension) || !AllowedFiles.TryGetValue(extension, out var expectedMimeType))
-                return false;
-
-            if (!string.Equals(file.ContentType, expectedMimeType, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            return await ValidateFileSignatureAsync(file, extension, cancellationToken);
-        }
-
-        private static async Task<bool> ValidateFileSignatureAsync(IFormFile file, string extension, CancellationToken cancellationToken)
-        {
-            try
-            {
-                using var stream = file.OpenReadStream();
-                var buffer = new byte[12];
-                var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
-                if (bytesRead < 8) return false;
-
-                var ext = extension.ToLowerInvariant();
-
-                if (ext == ".png")
-                {
-                    return buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47 &&
-                           buffer[4] == 0x0D && buffer[5] == 0x0A && buffer[6] == 0x1A && buffer[7] == 0x0A;
-                }
-
-                if (ext == ".jpg" || ext == ".jpeg")
-                {
-                    return buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF;
-                }
-
-                if (ext == ".webp")
-                {
-                    if (bytesRead < 12) return false;
-                    return buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46 &&
-                           buffer[8] == 0x57 && buffer[9] == 0x45 && buffer[10] == 0x42 && buffer[11] == 0x50;
-                }
-
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
+                .SetValidator(new CreateTripFAQDtoValidator());
         }
     }
 }

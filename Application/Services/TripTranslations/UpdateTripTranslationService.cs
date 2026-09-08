@@ -67,6 +67,7 @@ namespace Application.Services.TripTranslations
             translation.LongDescription = dto.LongDescription.Trim();
             translation.MetaTitle = dto.MetaTitle?.Trim();
             translation.MetaDescription = dto.MetaDescription?.Trim();
+            translation.PickupLocation = dto.PickupLocation?.Trim();
 
             try
             {
@@ -86,7 +87,8 @@ namespace Application.Services.TripTranslations
                 translation.ShortDescription,
                 translation.LongDescription,
                 translation.MetaTitle,
-                translation.MetaDescription);
+                translation.MetaDescription,
+                translation.PickupLocation);
         }
     }
 }

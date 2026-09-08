@@ -1,6 +1,7 @@
 using Application.DTOs.TripExcludes;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.TripExcludes;
+using Domain.Enum;
 
 namespace Application.Services.TripExcludes
 {
@@ -31,7 +32,7 @@ namespace Application.Services.TripExcludes
             var excludes = await _tripExcludeRepository.GetByTripIdAsync(tripId, cancellationToken);
 
             return excludes
-                .Select(e => new TripExcludeResponseDto(e.Id, e.TripId, e.Description))
+                .Select(e => new TripExcludeResponseDto(e.Id, e.TripId, e.Translations?.FirstOrDefault(t => t.Language == Language.English)?.Description ?? string.Empty))
                 .ToList();
         }
     }

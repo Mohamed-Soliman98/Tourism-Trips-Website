@@ -1,9 +1,10 @@
 using Application.DTOs.Trips;
+using Domain.Enum;
 
 namespace Application.Interfaces.Trips
 {
     public interface IGetTripByIdService
     {
-        Task<TripDetailsResponseDto> GetTripByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<PublicTripDetailsResponseDto> GetTripByIdAsync(Guid id, Language? language, CancellationToken cancellationToken = default);
     }
 }

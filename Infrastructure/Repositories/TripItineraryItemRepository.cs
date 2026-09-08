@@ -17,10 +17,20 @@ namespace Infrastructure.Repositories
         {
             return await _dbSet
                 .AsNoTracking()
+                .Include(item => item.Translations)
                 .Where(item => item.TripId == tripId)
                 .OrderBy(item => item.DisplayOrder)
                 .ThenBy(item => item.Id)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<TripItineraryItem?> GetByIdWithTranslationsAsync(
+            Guid id,
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(item => item.Translations)
+                .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
         }
     }
 }

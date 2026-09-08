@@ -8,7 +8,9 @@ namespace Domain.Enum
 {
     public enum Language
     {
-        English,
-        German
+        English = 0,
+        German = 1,
+        French = 2,
+        Russian = 3
     }
 }

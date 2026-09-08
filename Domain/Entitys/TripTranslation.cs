@@ -1,4 +1,4 @@
-﻿using Domain.Entity;
+using Domain.Entity;
 using Domain.Enum;
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,7 @@ namespace Domain.Entitys
         public string LongDescription { get; set; } = string.Empty;
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
+        public string? PickupLocation { get; set; }
 
         public Guid TripId { get; set; }
         public Trip Trip { get; set; } = null!;

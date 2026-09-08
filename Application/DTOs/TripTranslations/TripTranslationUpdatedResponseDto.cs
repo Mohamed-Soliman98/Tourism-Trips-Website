@@ -11,6 +11,7 @@ namespace Application.DTOs.TripTranslations
         string LongDescription,
         string? MetaTitle,
         string? MetaDescription,
+        string? PickupLocation,
         string Message = "Trip translation updated successfully."
     );
 }

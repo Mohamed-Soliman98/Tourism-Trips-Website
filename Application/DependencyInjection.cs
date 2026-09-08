@@ -10,10 +10,13 @@ using Application.Interfaces.Testimonials;
 using Application.Interfaces.TourTypes;
 using Application.Interfaces.TripExcludes;
 using Application.Interfaces.TripFAQs;
+using Application.Interfaces.TripHighlights;
 using Application.Interfaces.TripImages;
 using Application.Interfaces.TripIncludes;
+using Application.Interfaces.TripItineraryItems;
 using Application.Interfaces.Trips;
 using Application.Interfaces.TripTranslations;
+using Application.Interfaces.TripWhatToBrings;
 using Application.Services.BookingInquiries;
 using Application.Services.Banners;
 using Application.Services.Categories;
@@ -26,10 +29,13 @@ using Application.Services.Testimonials;
 using Application.Services.TourTypes;
 using Application.Services.TripExcludes;
 using Application.Services.TripFAQs;
+using Application.Services.TripHighlights;
 using Application.Services.TripImages;
 using Application.Services.TripIncludes;
+using Application.Services.TripItineraryItems;
 using Application.Services.Trips;
 using Application.Services.TripTranslations;
+using Application.Services.TripWhatToBrings;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -46,6 +52,7 @@ namespace Application
             services.AddScoped<IGetTripBySlugService, GetTripBySlugService>();
             services.AddScoped<IGetPublicTripsService, GetPublicTripsService>();
             services.AddScoped<IGetAdminTripsService, GetAdminTripsService>();
+            services.AddScoped<IGetAdminTripByIdService, GetAdminTripByIdService>();
             services.AddScoped<IUpdateTripService, UpdateTripService>();
             services.AddScoped<IDeleteTripService, DeleteTripService>();
             services.AddScoped<IPublishTripService, PublishTripService>();
@@ -103,6 +110,24 @@ namespace Application
             services.AddScoped<IGetTripExcludeByIdService, GetTripExcludeByIdService>();
             services.AddScoped<IUpdateTripExcludeService, UpdateTripExcludeService>();
             services.AddScoped<IDeleteTripExcludeService, DeleteTripExcludeService>();
+
+            services.AddScoped<IAddTripHighlightService, AddTripHighlightService>();
+            services.AddScoped<IGetTripHighlightsService, GetTripHighlightsService>();
+            services.AddScoped<IGetTripHighlightByIdService, GetTripHighlightByIdService>();
+            services.AddScoped<IUpdateTripHighlightService, UpdateTripHighlightService>();
+            services.AddScoped<IDeleteTripHighlightService, DeleteTripHighlightService>();
+
+            services.AddScoped<IAddTripWhatToBringService, AddTripWhatToBringService>();
+            services.AddScoped<IGetTripWhatToBringsService, GetTripWhatToBringsService>();
+            services.AddScoped<IGetTripWhatToBringByIdService, GetTripWhatToBringByIdService>();
+            services.AddScoped<IUpdateTripWhatToBringService, UpdateTripWhatToBringService>();
+            services.AddScoped<IDeleteTripWhatToBringService, DeleteTripWhatToBringService>();
+
+            services.AddScoped<IAddTripItineraryItemService, AddTripItineraryItemService>();
+            services.AddScoped<IGetTripItineraryItemsService, GetTripItineraryItemsService>();
+            services.AddScoped<IGetTripItineraryItemByIdService, GetTripItineraryItemByIdService>();
+            services.AddScoped<IUpdateTripItineraryItemService, UpdateTripItineraryItemService>();
+            services.AddScoped<IDeleteTripItineraryItemService, DeleteTripItineraryItemService>();
 
             services.AddScoped<IAddTripFAQService, AddTripFAQService>();
             services.AddScoped<IGetTripFAQsService, GetTripFAQsService>();

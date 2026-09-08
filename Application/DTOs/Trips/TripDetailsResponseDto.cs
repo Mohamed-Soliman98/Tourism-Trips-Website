@@ -61,13 +61,13 @@ namespace Application.DTOs.Trips
         string Answer
     );
 
+    // Obsolete - use PublicTripFAQDto for public endpoints or AdminTripFAQDto for admin endpoints
     public sealed record TripFAQDto(
         Guid Id,
         string Question,
         string Answer,
         int DisplayOrder,
-        bool IsActive,
-        List<FAQTranslationDto> Translations
+        bool IsActive
     );
 
     public sealed record TripTranslationDto(
@@ -77,9 +77,11 @@ namespace Application.DTOs.Trips
         string ShortDescription,
         string LongDescription,
         string? MetaTitle,
-        string? MetaDescription
+        string? MetaDescription,
+        string? PickupLocation
     );
 
+    // Obsolete - use PublicTripDetailsResponseDto for public endpoints or AdminTripDetailsResponseDto for admin endpoints
     public sealed record TripDetailsResponseDto(
         Guid Id,
         string Title,
@@ -114,7 +116,6 @@ namespace Application.DTOs.Trips
         List<TripExcludeDto> Excludes,
         List<TripHighlightDto> Highlights,
         List<TripWhatToBringDto> WhatToBringItems,
-        List<TripFAQDto> FAQs,
-        TripTranslationDto? Translation
+        List<TripFAQDto> FAQs
     );
 }

@@ -45,14 +45,14 @@ namespace Application.Services.Trips
         public async Task<TripDuplicatedResponseDto> DuplicateTripAsync(Guid tripId, CancellationToken cancellationToken)
         {
             var originalTrip = await _tripRepository.GetByIdWithDetailsAsync(tripId, cancellationToken);
-            
+
             if (originalTrip == null)
             {
                 throw new KeyNotFoundException($"Trip with ID {tripId} not found.");
             }
 
             using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            
+
             try
             {
                 var newSlug = await GenerateUniqueSlugAsync(originalTrip.Slug, cancellationToken);
@@ -99,9 +99,10 @@ namespace Application.Services.Trips
                         LongDescription = translation.LongDescription,
                         MetaTitle = translation.MetaTitle,
                         MetaDescription = translation.MetaDescription,
+                        PickupLocation = translation.PickupLocation,
                         TripId = newTrip.Id
                     };
-                    
+
                     _tripTranslationRepository.Add(newTranslation);
                 }
 
@@ -118,7 +119,7 @@ namespace Application.Services.Trips
                         UpdatedAt = null,
                         TripId = newTrip.Id
                     };
-                    
+
                     _tripImageRepository.Add(newImage);
                 }
 
@@ -128,13 +129,23 @@ namespace Application.Services.Trips
                     {
                         Id = Guid.NewGuid(),
                         DisplayOrder = itineraryItem.DisplayOrder,
-                        Title = itineraryItem.Title,
-                        Description = itineraryItem.Description,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = null,
                         TripId = newTrip.Id
                     };
-                    
+
+                    foreach (var tr in itineraryItem.Translations)
+                    {
+                        newItineraryItem.Translations.Add(new TripItineraryItemTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripItineraryItemId = newItineraryItem.Id,
+                            Language = tr.Language,
+                            Title = tr.Title,
+                            Description = tr.Description
+                        });
+                    }
+
                     _tripItineraryItemRepository.Add(newItineraryItem);
                 }
 
@@ -143,12 +154,22 @@ namespace Application.Services.Trips
                     var newInclude = new TripInclude
                     {
                         Id = Guid.NewGuid(),
-                        Description = include.Description,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = null,
                         TripId = newTrip.Id
                     };
-                    
+
+                    foreach (var tr in include.Translations)
+                    {
+                        newInclude.Translations.Add(new TripIncludeTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripIncludeId = newInclude.Id,
+                            Language = tr.Language,
+                            Description = tr.Description
+                        });
+                    }
+
                     _tripIncludeRepository.Add(newInclude);
                 }
 
@@ -157,35 +178,69 @@ namespace Application.Services.Trips
                     var newExclude = new TripExclude
                     {
                         Id = Guid.NewGuid(),
-                        Description = exclude.Description,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = null,
                         TripId = newTrip.Id
                     };
-                    
+
+                    foreach (var tr in exclude.Translations)
+                    {
+                        newExclude.Translations.Add(new TripExcludeTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripExcludeId = newExclude.Id,
+                            Language = tr.Language,
+                            Description = tr.Description
+                        });
+                    }
+
                     _tripExcludeRepository.Add(newExclude);
                 }
 
                 foreach (var highlight in originalTrip.Highlights)
                 {
-                    newTrip.Highlights.Add(new TripHighlight
+                    var newHighlight = new TripHighlight
                     {
                         Id = Guid.NewGuid(),
-                        Description = highlight.Description,
                         DisplayOrder = highlight.DisplayOrder,
                         TripId = newTrip.Id
-                    });
+                    };
+
+                    foreach (var tr in highlight.Translations)
+                    {
+                        newHighlight.Translations.Add(new TripHighlightTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripHighlightId = newHighlight.Id,
+                            Language = tr.Language,
+                            Description = tr.Description
+                        });
+                    }
+
+                    newTrip.Highlights.Add(newHighlight);
                 }
 
                 foreach (var item in originalTrip.WhatToBringItems)
                 {
-                    newTrip.WhatToBringItems.Add(new TripWhatToBring
+                    var newWhatToBring = new TripWhatToBring
                     {
                         Id = Guid.NewGuid(),
-                        Description = item.Description,
                         DisplayOrder = item.DisplayOrder,
                         TripId = newTrip.Id
-                    });
+                    };
+
+                    foreach (var tr in item.Translations)
+                    {
+                        newWhatToBring.Translations.Add(new TripWhatToBringTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripWhatToBringId = newWhatToBring.Id,
+                            Language = tr.Language,
+                            Description = tr.Description
+                        });
+                    }
+
+                    newTrip.WhatToBringItems.Add(newWhatToBring);
                 }
 
                 foreach (var faq in originalTrip.FAQs)
@@ -201,7 +256,7 @@ namespace Application.Services.Trips
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = null
                     };
-                    
+
                     _faqRepository.Add(newFaq);
 
                     foreach (var faqTranslation in faq.Translations)
@@ -214,10 +269,12 @@ namespace Application.Services.Trips
                             Answer = faqTranslation.Answer,
                             FAQId = newFaq.Id
                         };
-                        
+
                         _faqTranslationRepository.Add(newFaqTranslation);
                     }
                 }
+
+                _tripRepository.Add(newTrip);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

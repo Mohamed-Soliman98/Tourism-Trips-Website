@@ -74,6 +74,8 @@ namespace Infrastructure
             services.AddScoped<ITripIncludeRepository, TripIncludeRepository>();
             services.AddScoped<ITripExcludeRepository, TripExcludeRepository>();
             services.AddScoped<ITripItineraryItemRepository, TripItineraryItemRepository>();
+            services.AddScoped<ITripHighlightRepository, TripHighlightRepository>();
+            services.AddScoped<ITripWhatToBringRepository, TripWhatToBringRepository>();
             services.AddScoped<IFAQRepository, FAQRepository>();
             services.AddScoped<IFAQTranslationRepository, FAQTranslationRepository>();
             services.AddScoped<ITestimonialRepository, TestimonialRepository>();

@@ -7,5 +7,9 @@ namespace Application.Interfaces.Repositories
         Task<List<TripExclude>> GetByTripIdAsync(
             Guid tripId,
             CancellationToken cancellationToken = default);
+
+        Task<TripExclude?> GetByIdWithTranslationsAsync(
+            Guid id,
+            CancellationToken cancellationToken = default);
     }
 }

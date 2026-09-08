@@ -1,4 +1,4 @@
-﻿using Domain.Entitys;
+using Domain.Entitys;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -34,6 +34,9 @@ namespace Infrastructure.Configurations
                 .HasMaxLength(200);
 
             builder.Property(t => t.MetaDescription)
+                .HasMaxLength(500);
+
+            builder.Property(t => t.PickupLocation)
                 .HasMaxLength(500);
 
             builder.HasOne(t => t.Trip)

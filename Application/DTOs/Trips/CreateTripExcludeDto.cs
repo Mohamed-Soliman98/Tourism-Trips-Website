@@ -1,7 +1,9 @@
+using Application.DTOs.Common;
+
 namespace Application.DTOs.Trips
 {
     public sealed record CreateTripExcludeDto
     {
-        public string Description { get; set; } = string.Empty;
+        public LocalizedTextDto Description { get; set; } = new();
     }
 }

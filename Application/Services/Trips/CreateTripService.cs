@@ -1,30 +1,28 @@
 using Application.DTOs.Trips;
 using Application.Interfaces.IUnitOfWork;
 using Application.Interfaces.Repositories;
-using Application.Interfaces.Storage;
 using Application.Interfaces.Trips;
 using Domain.Entity;
 using Domain.Entitys;
 using Domain.Enum;
 using FluentValidation;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.Services.Trips
 {
     public class CreateTripService : ICreateTripService
     {
-     
-
         private readonly ITripRepository _tripRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IDestinationRepository _destinationRepository;
         private readonly ITourTypeRepository _tourTypeRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IFileStorageService _fileStorage;
         private readonly IValidator<CreateTripDto> _validator;
 
         public CreateTripService(
             IUnitOfWork unitOfWork,
-            IFileStorageService fileStorage,
             ITourTypeRepository tourTypeRepository,
             IDestinationRepository destinationRepository,
             ICategoryRepository categoryRepository,
@@ -32,7 +30,6 @@ namespace Application.Services.Trips
             IValidator<CreateTripDto> validator)
         {
             _unitOfWork = unitOfWork;
-            _fileStorage = fileStorage;
             _tourTypeRepository = tourTypeRepository;
             _destinationRepository = destinationRepository;
             _categoryRepository = categoryRepository;
@@ -40,9 +37,7 @@ namespace Application.Services.Trips
             _validator = validator;
         }
 
-        public async Task<TripCreatedResponseDto> CreateTripAsync(
-            CreateTripDto dto,
-            CancellationToken cancellationToken = default)
+        public async Task<TripCreatedResponseDto> CreateTripAsync( CreateTripDto dto, CancellationToken cancellationToken = default)
         {
             await _validator.ValidateAndThrowAsync(dto, cancellationToken);
 
@@ -66,8 +61,6 @@ namespace Application.Services.Trips
                 throw new InvalidOperationException("Trip slug already exists.");
             }
 
-            var uploadedFiles = new List<string>();
-
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
@@ -75,182 +68,196 @@ namespace Application.Services.Trips
                 var trip = new Trip
                 {
                     Id = Guid.NewGuid(),
-                    Title = dto.Title,
-                    Slug = dto.Slug.ToLowerInvariant(),
-
+                    Title = dto.Title.English?.Trim() ?? string.Empty,
+                    Slug = dto.Slug.ToLowerInvariant().Trim(),
                     Status = TripStatus.Draft,
-
                     IsFeatured = dto.IsFeatured,
                     DisplayOrder = dto.DisplayOrder,
-
                     Duration = dto.Duration,
                     DurationUnit = dto.DurationUnit,
-                    PickupLocation = dto.PickupLocation,
-
+                    PickupLocation = dto.PickupLocation?.English?.Trim(),
                     Currency = dto.Currency,
                     AdultPrice = dto.AdultPrice,
                     ChildPrice = dto.ChildPrice,
                     OldPrice = dto.OldPrice,
                     IsPriceFrom = dto.IsPriceFrom,
-
-                    ShortDescription = dto.ShortDescription,
-                    LongDescription = dto.LongDescription,
-
-                    MetaTitle = dto.MetaTitle,
-                    MetaDescription = dto.MetaDescription,
+                    ShortDescription = dto.ShortDescription.English?.Trim() ?? string.Empty,
+                    LongDescription = dto.LongDescription.English?.Trim() ?? string.Empty,
+                    MetaTitle = dto.MetaTitle?.English?.Trim(),
+                    MetaDescription = dto.MetaDescription?.English?.Trim(),
                     Notes = dto.Notes,
-
                     CategoryId = dto.CategoryId,
                     DestinationId = dto.DestinationId,
                     TourTypeId = dto.TourTypeId
                 };
 
-                if (dto.CoverImage is not null)
+                // Create Trip translations for all supported languages
+                foreach (var language in TranslationHelper.GetLanguagesToCreate(
+                    dto.Title, dto.ShortDescription, dto.LongDescription, dto.MetaTitle, dto.MetaDescription, dto.PickupLocation))
                 {
-                    var coverPath = await _fileStorage.SaveAsync(dto.CoverImage, "trips", cancellationToken);
-                    uploadedFiles.Add(coverPath);
-
-                    trip.Images.Add(new TripImage
+                    trip.Translations.Add(new TripTranslation
                     {
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
-                        ImageUrl = coverPath,
-                        AltText = dto.CoverImageAltText ?? dto.Title,
-                        DisplayOrder = -1,
-                        IsCover = true,
-                        CreatedAt = DateTime.UtcNow
+                        Language = language,
+                        Title = TranslationHelper.GetValueOrEnglishFallback(dto.Title, language, isRequired: true),
+                        ShortDescription = TranslationHelper.GetValueOrEnglishFallback(dto.ShortDescription, language, isRequired: true),
+                        LongDescription = TranslationHelper.GetValueOrEnglishFallback(dto.LongDescription, language, isRequired: true),
+                        MetaTitle = TranslationHelper.GetOptionalValueOrEnglishFallback(dto.MetaTitle, language),
+                        MetaDescription = TranslationHelper.GetOptionalValueOrEnglishFallback(dto.MetaDescription, language),
+                        PickupLocation = TranslationHelper.GetOptionalValueOrEnglishFallback(dto.PickupLocation, language)
                     });
                 }
 
-                int galleryStartOrder = 0;
-                for (int i = 0; i < dto.GalleryImages.Count; i++)
-                {
-                    var image = dto.GalleryImages[i];
-
-                    var imagePath = await _fileStorage.SaveAsync(image, "trips", cancellationToken);
-
-                    uploadedFiles.Add(imagePath);
-
-                    trip.Images.Add(new TripImage
-                    {
-                        Id = Guid.NewGuid(),
-                        TripId = trip.Id,
-                        ImageUrl = imagePath,
-                        AltText = dto.GalleryAltTexts != null && i < dto.GalleryAltTexts.Count ? dto.GalleryAltTexts[i] : dto.Title,
-                        DisplayOrder = galleryStartOrder + i,
-                        IsCover = false,
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-
-                if (dto.OgImage is not null)
-                {
-                    var ogImagePath = await _fileStorage.SaveAsync(dto.OgImage, "trips", cancellationToken);
-
-                    uploadedFiles.Add(ogImagePath);
-
-                    trip.OgImage = ogImagePath;
-                }
-
+                // Itinerary Items
                 foreach (var item in dto.ItineraryItems)
                 {
-                    trip.ItineraryItems.Add(new TripItineraryItem
+                    var itineraryItem = new TripItineraryItem
                     {
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
-                        Title = item.Title,
-                        Description = item.Description,
                         DisplayOrder = item.DisplayOrder
-                    });
+                    };
+
+                    foreach (var language in TranslationHelper.GetLanguagesToCreate(item.Title, item.Description))
+                    {
+                        itineraryItem.Translations.Add(new TripItineraryItemTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripItineraryItemId = itineraryItem.Id,
+                            Language = language,
+                            Title = TranslationHelper.GetValueOrEnglishFallback(item.Title, language, isRequired: true),
+                            Description = TranslationHelper.GetOptionalValueOrEnglishFallback(item.Description, language)
+                        });
+                    }
+
+                    trip.ItineraryItems.Add(itineraryItem);
                 }
 
+                // Includes
                 foreach (var item in dto.Includes)
                 {
-                    trip.Includes.Add(new TripInclude
+                    var include = new TripInclude
                     {
                         Id = Guid.NewGuid(),
-                        TripId = trip.Id,
-                        Description = item.Description
-                    });
+                        TripId = trip.Id
+                    };
+
+                    foreach (var language in TranslationHelper.GetLanguagesToCreate(item.Description))
+                    {
+                        include.Translations.Add(new TripIncludeTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripIncludeId = include.Id,
+                            Language = language,
+                            Description = TranslationHelper.GetValueOrEnglishFallback(item.Description, language, isRequired: true)
+                        });
+                    }
+
+                    trip.Includes.Add(include);
                 }
 
+                // Excludes
                 foreach (var item in dto.Excludes)
                 {
-                    trip.Excludes.Add(new TripExclude
+                    var exclude = new TripExclude
                     {
                         Id = Guid.NewGuid(),
-                        TripId = trip.Id,
-                        Description = item.Description
-                    });
+                        TripId = trip.Id
+                    };
+
+                    foreach (var language in TranslationHelper.GetLanguagesToCreate(item.Description))
+                    {
+                        exclude.Translations.Add(new TripExcludeTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripExcludeId = exclude.Id,
+                            Language = language,
+                            Description = TranslationHelper.GetValueOrEnglishFallback(item.Description, language, isRequired: true)
+                        });
+                    }
+
+                    trip.Excludes.Add(exclude);
                 }
 
+                // Highlights
                 foreach (var item in dto.Highlights)
                 {
-                    trip.Highlights.Add(new TripHighlight
+                    var highlight = new TripHighlight
                     {
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
-                        Description = item.Description,
                         DisplayOrder = item.DisplayOrder
-                    });
+                    };
+
+                    foreach (var language in TranslationHelper.GetLanguagesToCreate(item.Description))
+                    {
+                        highlight.Translations.Add(new TripHighlightTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripHighlightId = highlight.Id,
+                            Language = language,
+                            Description = TranslationHelper.GetValueOrEnglishFallback(item.Description, language, isRequired: true)
+                        });
+                    }
+
+                    trip.Highlights.Add(highlight);
                 }
 
+                // What To Bring Items
                 foreach (var item in dto.WhatToBringItems)
                 {
-                    trip.WhatToBringItems.Add(new TripWhatToBring
+                    var whatToBring = new TripWhatToBring
                     {
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
-                        Description = item.Description,
                         DisplayOrder = item.DisplayOrder
-                    });
+                    };
+
+                    foreach (var language in TranslationHelper.GetLanguagesToCreate(item.Description))
+                    {
+                        whatToBring.Translations.Add(new TripWhatToBringTranslation
+                        {
+                            Id = Guid.NewGuid(),
+                            TripWhatToBringId = whatToBring.Id,
+                            Language = language,
+                            Description = TranslationHelper.GetValueOrEnglishFallback(item.Description, language, isRequired: true)
+                        });
+                    }
+
+                    trip.WhatToBringItems.Add(whatToBring);
                 }
 
+                // FAQs
                 foreach (var faqDto in dto.FAQs)
                 {
                     var faq = new FAQ
                     {
                         Id = Guid.NewGuid(),
                         TripId = trip.Id,
-                        Question = faqDto.Question,
-                        Answer = faqDto.Answer,
+                        Question = faqDto.Question.English?.Trim() ?? string.Empty,
+                        Answer = faqDto.Answer.English?.Trim() ?? string.Empty,
                         DisplayOrder = faqDto.DisplayOrder,
                         IsActive = faqDto.IsActive
                     };
 
-                    foreach (var translation in faqDto.Translations)
+                    foreach (var language in TranslationHelper.GetLanguagesToCreate(faqDto.Question, faqDto.Answer))
                     {
                         faq.Translations.Add(new FAQTranslation
                         {
                             Id = Guid.NewGuid(),
                             FAQId = faq.Id,
-                            Language = translation.Language,
-                            Question = translation.Question,
-                            Answer = translation.Answer
+                            Language = language,
+                            Question = TranslationHelper.GetValueOrEnglishFallback(faqDto.Question, language, isRequired: true),
+                            Answer = TranslationHelper.GetValueOrEnglishFallback(faqDto.Answer, language, isRequired: true)
                         });
                     }
 
                     trip.FAQs.Add(faq);
                 }
 
-                foreach (var translation in dto.Translations)
-                {
-                    trip.Translations.Add(new TripTranslation
-                    {
-                        Id = Guid.NewGuid(),
-                        TripId = trip.Id,
-                        Language = translation.Language,
-                        Title = translation.Title,
-                        ShortDescription = translation.ShortDescription,
-                        LongDescription = translation.LongDescription,
-                        MetaTitle = translation.MetaTitle,
-                        MetaDescription = translation.MetaDescription
-                    });
-                }
-
                 _tripRepository.Add(trip);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-
                 await transaction.CommitAsync(cancellationToken);
 
                 return new TripCreatedResponseDto(trip.Id, trip.Slug, "Trip created successfully as Draft.");
@@ -258,12 +265,6 @@ namespace Application.Services.Trips
             catch
             {
                 await transaction.RollbackAsync(cancellationToken);
-
-                foreach (var file in uploadedFiles)
-                {
-                    await _fileStorage.DeleteAsync(file);
-                }
-
                 throw;
             }
         }

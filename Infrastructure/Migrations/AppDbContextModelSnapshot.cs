@@ -580,11 +580,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<Guid>("TripId")
                         .HasColumnType("uniqueidentifier");
 
@@ -598,7 +593,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("TripExcludes");
                 });
 
-            modelBuilder.Entity("Domain.Entitys.TripHighlight", b =>
+            modelBuilder.Entity("Domain.Entitys.TripExcludeTranslation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -608,6 +603,26 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TripExcludeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripExcludeId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("TripExcludeTranslations");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripHighlight", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
@@ -620,6 +635,31 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TripId");
 
                     b.ToTable("TripHighlights");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripHighlightTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TripHighlightId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripHighlightId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("TripHighlightTranslations");
                 });
 
             modelBuilder.Entity("Domain.Entitys.TripImage", b =>
@@ -671,11 +711,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<Guid>("TripId")
                         .HasColumnType("uniqueidentifier");
 
@@ -689,6 +724,31 @@ namespace Infrastructure.Migrations
                     b.ToTable("TripIncludes");
                 });
 
+            modelBuilder.Entity("Domain.Entitys.TripIncludeTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TripIncludeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripIncludeId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("TripIncludeTranslations");
+                });
+
             modelBuilder.Entity("Domain.Entitys.TripItineraryItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -698,17 +758,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<Guid>("TripId")
                         .HasColumnType("uniqueidentifier");
@@ -721,6 +772,35 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TripId");
 
                     b.ToTable("TripItineraryItems");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripItineraryItemTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("TripItineraryItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripItineraryItemId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("TripItineraryItemTranslations");
                 });
 
             modelBuilder.Entity("Domain.Entitys.TripTranslation", b =>
@@ -744,6 +824,10 @@ namespace Infrastructure.Migrations
                     b.Property<string>("MetaTitle")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("PickupLocation")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ShortDescription")
                         .IsRequired()
@@ -772,11 +856,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
@@ -788,6 +867,31 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TripId");
 
                     b.ToTable("TripWhatToBrings");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripWhatToBringTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Language")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TripWhatToBringId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TripWhatToBringId", "Language")
+                        .IsUnique();
+
+                    b.ToTable("TripWhatToBringTranslations");
                 });
 
             modelBuilder.Entity("Infrastructure.Identity.ApplicationUser", b =>
@@ -1061,6 +1165,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Trip");
                 });
 
+            modelBuilder.Entity("Domain.Entitys.TripExcludeTranslation", b =>
+                {
+                    b.HasOne("Domain.Entitys.TripExclude", "TripExclude")
+                        .WithMany("Translations")
+                        .HasForeignKey("TripExcludeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TripExclude");
+                });
+
             modelBuilder.Entity("Domain.Entitys.TripHighlight", b =>
                 {
                     b.HasOne("Domain.Entity.Trip", "Trip")
@@ -1070,6 +1185,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Trip");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripHighlightTranslation", b =>
+                {
+                    b.HasOne("Domain.Entitys.TripHighlight", "TripHighlight")
+                        .WithMany("Translations")
+                        .HasForeignKey("TripHighlightId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TripHighlight");
                 });
 
             modelBuilder.Entity("Domain.Entitys.TripImage", b =>
@@ -1094,6 +1220,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Trip");
                 });
 
+            modelBuilder.Entity("Domain.Entitys.TripIncludeTranslation", b =>
+                {
+                    b.HasOne("Domain.Entitys.TripInclude", "TripInclude")
+                        .WithMany("Translations")
+                        .HasForeignKey("TripIncludeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TripInclude");
+                });
+
             modelBuilder.Entity("Domain.Entitys.TripItineraryItem", b =>
                 {
                     b.HasOne("Domain.Entity.Trip", "Trip")
@@ -1103,6 +1240,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Trip");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripItineraryItemTranslation", b =>
+                {
+                    b.HasOne("Domain.Entitys.TripItineraryItem", "TripItineraryItem")
+                        .WithMany("Translations")
+                        .HasForeignKey("TripItineraryItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TripItineraryItem");
                 });
 
             modelBuilder.Entity("Domain.Entitys.TripTranslation", b =>
@@ -1125,6 +1273,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Trip");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripWhatToBringTranslation", b =>
+                {
+                    b.HasOne("Domain.Entitys.TripWhatToBring", "TripWhatToBring")
+                        .WithMany("Translations")
+                        .HasForeignKey("TripWhatToBringId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TripWhatToBring");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -1215,6 +1374,31 @@ namespace Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Domain.Entitys.FAQ", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripExclude", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripHighlight", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripInclude", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripItineraryItem", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("Domain.Entitys.TripWhatToBring", b =>
                 {
                     b.Navigation("Translations");
                 });

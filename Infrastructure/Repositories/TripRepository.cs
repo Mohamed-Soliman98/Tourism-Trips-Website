@@ -28,38 +28,48 @@ namespace Infrastructure.Repositories
         {
             return await _dbSet
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(t => t.Category)
                 .Include(t => t.Destination)
                 .Include(t => t.TourType)
                 .Include(t => t.Images)
                 .Include(t => t.ItineraryItems)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Includes)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Excludes)
+                    .ThenInclude(e => e.Translations)
                 .Include(t => t.Highlights)
+                    .ThenInclude(h => h.Translations)
                 .Include(t => t.WhatToBringItems)
+                    .ThenInclude(w => w.Translations)
                 .Include(t => t.FAQs)
-                .ThenInclude(f => f.Translations)
+                    .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }
 
-        public async Task<Trip?> GetBySlugWithDetailsAsync(
-            string slug,
-            CancellationToken cancellationToken = default)
+        public async Task<Trip?> GetBySlugWithDetailsAsync(string slug, CancellationToken cancellationToken = default)
         {
             var normalizedSlug = slug.Trim().ToLowerInvariant();
 
             return await _dbSet
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(t => t.Category)
                 .Include(t => t.Destination)
                 .Include(t => t.TourType)
                 .Include(t => t.Images)
                 .Include(t => t.ItineraryItems)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Includes)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Excludes)
+                    .ThenInclude(e => e.Translations)
                 .Include(t => t.Highlights)
+                    .ThenInclude(h => h.Translations)
                 .Include(t => t.WhatToBringItems)
+                    .ThenInclude(w => w.Translations)
                 .Include(t => t.FAQs)
                     .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
@@ -188,46 +198,51 @@ namespace Infrastructure.Repositories
             return (items, totalCount);
         }
 
-        public async Task<Trip?> GetByIdForUpdateAsync(
-            Guid id,
-            CancellationToken cancellationToken = default)
+        public async Task<Trip?> GetByIdForUpdateAsync(Guid id,CancellationToken cancellationToken = default)
         {
             return await _dbSet
+                .AsSplitQuery()
                 .Include(t => t.Category)
                 .Include(t => t.Destination)
                 .Include(t => t.TourType)
                 .Include(t => t.Images)
                 .Include(t => t.ItineraryItems)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Includes)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Excludes)
+                    .ThenInclude(e => e.Translations)
                 .Include(t => t.Highlights)
+                    .ThenInclude(h => h.Translations)
                 .Include(t => t.WhatToBringItems)
+                    .ThenInclude(w => w.Translations)
                 .Include(t => t.FAQs)
                     .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)
                 .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         }
 
-        public async Task<bool> ExistsBySlugOtherThanIdAsync(
-            string slug,
-            Guid id,
-            CancellationToken cancellationToken = default)
+        public async Task<bool> ExistsBySlugOtherThanIdAsync( string slug, Guid id, CancellationToken cancellationToken = default)
         {
             var normalizedSlug = slug.Trim().ToLowerInvariant();
             return await _dbSet.AnyAsync(x => x.Slug.ToLower() == normalizedSlug && x.Id != id, cancellationToken);
         }
 
-        public async Task<Trip?> GetByIdForDeleteAsync(
-            Guid id,
-            CancellationToken cancellationToken = default)
+        public async Task<Trip?> GetByIdForDeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
+                .AsSplitQuery()
                 .Include(t => t.Images)
                 .Include(t => t.ItineraryItems)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Includes)
+                    .ThenInclude(i => i.Translations)
                 .Include(t => t.Excludes)
+                    .ThenInclude(e => e.Translations)
                 .Include(t => t.Highlights)
+                    .ThenInclude(h => h.Translations)
                 .Include(t => t.WhatToBringItems)
+                    .ThenInclude(w => w.Translations)
                 .Include(t => t.FAQs)
                     .ThenInclude(f => f.Translations)
                 .Include(t => t.Translations)

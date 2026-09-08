@@ -10,19 +10,13 @@ namespace Infrastructure.Configurations
         {
             builder.HasKey(i => i.Id);
 
-            builder.Property(i => i.Title)
-                .IsRequired()
-                .HasMaxLength(200);
-
-            builder.Property(i => i.Description)
-                .HasMaxLength(1000);
+            builder.Property(i => i.DisplayOrder)
+                .IsRequired();
 
             builder.HasOne(i => i.Trip)
                 .WithMany(t => t.ItineraryItems)
                 .HasForeignKey(i => i.TripId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
-
-        
     }
 }

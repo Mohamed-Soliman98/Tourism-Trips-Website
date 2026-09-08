@@ -17,7 +17,7 @@ namespace Application.Services.Trips
             _tripRepository = tripRepository;
         }
 
-        public async Task<TripDetailsResponseDto> GetTripBySlugAsync(string slug, Language language, CancellationToken cancellationToken = default)
+        public async Task<PublicTripDetailsResponseDto> GetTripBySlugAsync(string slug, Language? language, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -36,39 +36,42 @@ namespace Application.Services.Trips
                 throw new KeyNotFoundException($"Active trip with slug '{trimmedSlug}' was not found.");
             }
 
-            return MapToDto(trip, language);
+            return MapToPublicDto(trip, language);
         }
 
-        private static TripDetailsResponseDto MapToDto(Trip trip, Language language)
+        private static PublicTripDetailsResponseDto MapToPublicDto(Trip trip, Language? language)
         {
             var coverImage = trip.Images?.FirstOrDefault(i => i.IsCover);
+            var requestedLanguage = language ?? Language.English;
 
-            var translation = trip.Translations?.FirstOrDefault(t => t.Language == language);
-            
+            var translation =
+                trip.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                ?? trip.Translations?.FirstOrDefault(t => t.Language == Language.English);
+
             if (translation == null)
             {
-                throw new KeyNotFoundException($"Translation for language '{language}' was not found for this trip.");
+                throw new InvalidOperationException($"Data integrity error: Required translation for trip '{trip.Id}' was not found.");
             }
 
-            return new TripDetailsResponseDto(
+            return new PublicTripDetailsResponseDto(
                 Id: trip.Id,
-                Title: trip.Title,
+                Title: translation.Title,
                 Slug: trip.Slug,
                 Status: trip.Status,
                 IsFeatured: trip.IsFeatured,
                 DisplayOrder: trip.DisplayOrder,
                 Duration: trip.Duration,
                 DurationUnit: trip.DurationUnit,
-                PickupLocation: trip.PickupLocation,
+                PickupLocation: translation.PickupLocation ?? trip.PickupLocation,
                 Currency: trip.Currency,
                 AdultPrice: trip.AdultPrice,
                 ChildPrice: trip.ChildPrice,
                 OldPrice: trip.OldPrice,
                 IsPriceFrom: trip.IsPriceFrom,
-                ShortDescription: trip.ShortDescription,
-                LongDescription: trip.LongDescription,
-                MetaTitle: trip.MetaTitle,
-                MetaDescription: trip.MetaDescription,
+                ShortDescription: translation.ShortDescription,
+                LongDescription: translation.LongDescription,
+                MetaTitle: translation.MetaTitle ?? trip.MetaTitle,
+                MetaDescription: translation.MetaDescription ?? trip.MetaDescription,
                 OgImage: trip.OgImage,
                 CoverImage: coverImage?.ImageUrl,
                 CoverImageAltText: coverImage?.AltText,
@@ -98,60 +101,76 @@ namespace Application.Services.Trips
                     .ToList() ?? new List<TripImageDto>(),
                 ItineraryItems: trip.ItineraryItems?
                     .OrderBy(i => i.DisplayOrder)
-                    .Select(i => new TripItineraryItemDto(
-                        i.Id,
-                        i.DisplayOrder,
-                        i.Title,
-                        i.Description))
+                    .Select(i =>
+                    {
+                        var itemTr = i.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                                    ?? i.Translations?.FirstOrDefault(t => t.Language == Language.English);
+                        return new TripItineraryItemDto(
+                            i.Id,
+                            i.DisplayOrder,
+                            itemTr?.Title ?? string.Empty,
+                            itemTr?.Description);
+                    })
                     .ToList() ?? new List<TripItineraryItemDto>(),
                 Includes: trip.Includes?
-                    .Select(i => new TripIncludeDto(
-                        i.Id,
-                        i.Description))
+                    .Select(i =>
+                    {
+                        var incTr = i.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                                   ?? i.Translations?.FirstOrDefault(t => t.Language == Language.English);
+                        return new TripIncludeDto(
+                            i.Id,
+                            incTr?.Description ?? string.Empty);
+                    })
                     .ToList() ?? new List<TripIncludeDto>(),
                 Excludes: trip.Excludes?
-                    .Select(e => new TripExcludeDto(
-                        e.Id,
-                        e.Description))
+                    .Select(e =>
+                    {
+                        var excTr = e.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                               ?? e.Translations?.FirstOrDefault(t => t.Language == Language.English);
+                        return new TripExcludeDto(
+                            e.Id,
+                            excTr?.Description ?? string.Empty);
+                    })
                     .ToList() ?? new List<TripExcludeDto>(),
                 Highlights: trip.Highlights?
                     .OrderBy(h => h.DisplayOrder)
-                    .Select(h => new TripHighlightDto(
-                        h.Id,
-                        h.Description,
-                        h.DisplayOrder))
+                    .Select(h =>
+                    {
+                        var hlTr = h.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                                  ?? h.Translations?.FirstOrDefault(t => t.Language == Language.English);
+                        return new TripHighlightDto(
+                            h.Id,
+                            hlTr?.Description ?? string.Empty,
+                            h.DisplayOrder);
+                    })
                     .ToList() ?? new List<TripHighlightDto>(),
                 WhatToBringItems: trip.WhatToBringItems?
                     .OrderBy(w => w.DisplayOrder)
-                    .Select(w => new TripWhatToBringDto(
-                        w.Id,
-                        w.Description,
-                        w.DisplayOrder))
+                    .Select(w =>
+                    {
+                        var wtbTr = w.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                                   ?? w.Translations?.FirstOrDefault(t => t.Language == Language.English);
+                        return new TripWhatToBringDto(
+                            w.Id,
+                            wtbTr?.Description ?? string.Empty,
+                            w.DisplayOrder);
+                    })
                     .ToList() ?? new List<TripWhatToBringDto>(),
                 FAQs: trip.FAQs?
+                    .Where(f => f.IsActive)
                     .OrderBy(f => f.DisplayOrder)
-                    .Select(f => new TripFAQDto(
-                        f.Id,
-                        f.Question,
-                        f.Answer,
-                        f.DisplayOrder,
-                        f.IsActive,
-                        f.Translations?
-                            .Select(ft => new FAQTranslationDto(
-                                ft.Id,
-                                ft.Language,
-                                ft.Question,
-                                ft.Answer))
-                            .ToList() ?? new List<FAQTranslationDto>()))
-                    .ToList() ?? new List<TripFAQDto>(),
-                Translation: new TripTranslationDto(
-                    translation.Id,
-                    translation.Language,
-                    translation.Title,
-                    translation.ShortDescription,
-                    translation.LongDescription,
-                    translation.MetaTitle,
-                    translation.MetaDescription)
+                    .Select(f =>
+                    {
+                        var faqTr = f.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                                   ?? f.Translations?.FirstOrDefault(t => t.Language == Language.English);
+                        return new PublicTripFAQDto(
+                            f.Id,
+                            faqTr?.Question ?? f.Question,
+                            faqTr?.Answer ?? f.Answer,
+                            f.DisplayOrder,
+                            f.IsActive);
+                    })
+                    .ToList() ?? new List<PublicTripFAQDto>()
             );
         }
     }

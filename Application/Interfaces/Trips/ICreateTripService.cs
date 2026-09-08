@@ -1,4 +1,6 @@
 using Application.DTOs.Trips;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.Interfaces.Trips
 {

@@ -8,8 +8,15 @@ namespace Application.Validators.Trips
         public CreateTripHighlightDtoValidator()
         {
             RuleFor(x => x.Description)
-                .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage("Highlight description is required.")
-                .MaximumLength(500).WithMessage("Highlight description cannot exceed 500 characters.");
+                .NotNull().WithMessage("Highlight description is required.");
+
+            RuleFor(x => x.Description.English)
+                .NotEmpty().WithMessage("Highlight English description is required.")
+                .MaximumLength(500).WithMessage("Highlight English description cannot exceed 500 characters.");
+
+            RuleFor(x => x.Description.German)
+                .MaximumLength(500).When(x => !string.IsNullOrEmpty(x.Description?.German))
+                .WithMessage("Highlight German description cannot exceed 500 characters.");
 
             RuleFor(x => x.DisplayOrder)
                 .GreaterThanOrEqualTo(0).WithMessage("Display order must be greater than or equal to 0.");

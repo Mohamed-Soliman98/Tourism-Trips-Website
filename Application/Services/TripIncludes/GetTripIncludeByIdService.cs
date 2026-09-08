@@ -1,6 +1,7 @@
 using Application.DTOs.TripIncludes;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.TripIncludes;
+using Domain.Enum;
 
 namespace Application.Services.TripIncludes
 {
@@ -32,7 +33,7 @@ namespace Application.Services.TripIncludes
             if (trip == null)
                 throw new KeyNotFoundException($"Trip with ID '{tripId}' was not found.");
 
-            var include = await _tripIncludeRepository.GetByIdAsync(includeId, cancellationToken);
+            var include = await _tripIncludeRepository.GetByIdWithTranslationsAsync(includeId, cancellationToken);
             if (include == null)
                 throw new KeyNotFoundException($"Trip include with ID '{includeId}' was not found.");
 
@@ -40,7 +41,11 @@ namespace Application.Services.TripIncludes
                 throw new InvalidOperationException(
                     $"Trip include '{includeId}' does not belong to trip '{tripId}'.");
 
-            return new TripIncludeResponseDto(include.Id, include.TripId, include.Description);
+            // Get description from the English translation, fall back to German
+            var englishTranslation = include.Translations?.FirstOrDefault(t => t.Language == Language.English);
+            var description = englishTranslation?.Description ?? include.Translations?.FirstOrDefault(t => t.Language == Language.German)?.Description ?? string.Empty;
+
+            return new TripIncludeResponseDto(include.Id, include.TripId, description);
         }
     }
 }

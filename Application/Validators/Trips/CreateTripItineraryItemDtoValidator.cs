@@ -11,11 +11,29 @@ namespace Application.Validators.Trips
                 .GreaterThanOrEqualTo(0).WithMessage("Display order must be greater than or equal to 0.");
 
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Itinerary item title is required.")
-                .MaximumLength(200).WithMessage("Itinerary item title cannot exceed 200 characters.");
+                .NotNull().WithMessage("Itinerary item title is required.");
 
-            RuleFor(x => x.Description)
-                .MaximumLength(1000).WithMessage("Itinerary item description cannot exceed 1000 characters.");
+            When(x => x.Title != null, () =>
+            {
+                RuleFor(x => x.Title.English)
+                    .NotEmpty().WithMessage("Itinerary item English title is required.")
+                    .MaximumLength(200).WithMessage("Itinerary item English title cannot exceed 200 characters.");
+
+                RuleFor(x => x.Title.German)
+                    .MaximumLength(200).When(x => !string.IsNullOrEmpty(x.Title.German))
+                    .WithMessage("Itinerary item German title cannot exceed 200 characters.");
+            });
+
+            When(x => x.Description != null, () =>
+            {
+                RuleFor(x => x.Description!.English)
+                    .MaximumLength(1000).When(x => !string.IsNullOrEmpty(x.Description?.English))
+                    .WithMessage("Itinerary item English description cannot exceed 1000 characters.");
+
+                RuleFor(x => x.Description!.German)
+                    .MaximumLength(1000).When(x => !string.IsNullOrEmpty(x.Description?.German))
+                    .WithMessage("Itinerary item German description cannot exceed 1000 characters.");
+            });
         }
     }
 }

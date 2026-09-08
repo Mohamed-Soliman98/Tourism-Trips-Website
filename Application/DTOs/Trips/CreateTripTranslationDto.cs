@@ -10,5 +10,6 @@ namespace Application.DTOs.Trips
         public string LongDescription { get; set; } = string.Empty;
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
+        public string? PickupLocation { get; set; }
     }
 }

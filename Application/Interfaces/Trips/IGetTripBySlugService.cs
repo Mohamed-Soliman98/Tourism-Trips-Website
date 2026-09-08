@@ -5,6 +5,6 @@ namespace Application.Interfaces.Trips
 {
     public interface IGetTripBySlugService
     {
-        Task<TripDetailsResponseDto> GetTripBySlugAsync(string slug, Language language, CancellationToken cancellationToken = default);
+        Task<PublicTripDetailsResponseDto> GetTripBySlugAsync(string slug, Language? language, CancellationToken cancellationToken = default);
     }
 }
