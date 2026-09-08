@@ -39,15 +39,8 @@ namespace Api.Controllers.CMSSections
             [FromBody] CreateCMSSectionDto dto,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _createCMSSectionService.CreateCMSSectionAsync(dto, cancellationToken);
-                return StatusCode(StatusCodes.Status201Created, result);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _createCMSSectionService.CreateCMSSectionAsync(dto, cancellationToken);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         [HttpGet]
@@ -90,21 +83,14 @@ namespace Api.Controllers.CMSSections
                 return BadRequest("Invalid CMS section ID.");
             }
 
-            try
-            {
-                var result = await _updateCMSSectionService.UpdateCMSSectionAsync(id, dto, cancellationToken);
-                
-                if (result == null)
-                {
-                    return NotFound($"CMS section with ID {id} not found.");
-                }
+            var result = await _updateCMSSectionService.UpdateCMSSectionAsync(id, dto, cancellationToken);
 
-                return Ok(result);
-            }
-            catch (InvalidOperationException ex)
+            if (result == null)
             {
-                return BadRequest(ex.Message);
+                return NotFound($"CMS section with ID {id} not found.");
             }
+
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]

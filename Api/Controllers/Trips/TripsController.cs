@@ -140,53 +140,24 @@ namespace Api.Controllers.Trips
         [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<ActionResult<TripPublishedResponseDto>> PublishTrip([FromRoute] Guid tripId, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _publishTripService.PublishTripAsync(tripId, cancellationToken);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _publishTripService.PublishTripAsync(tripId, cancellationToken);
+            return Ok(result);
         }
 
         [HttpPost("{id:guid}/unpublish")]
         [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<ActionResult<TripUnpublishedResponseDto>> UnpublishTrip([FromRoute] Guid id, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _unpublishTripService.UnpublishTripAsync(id, cancellationToken);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _unpublishTripService.UnpublishTripAsync(id, cancellationToken);
+            return Ok(result);
         }
 
         [HttpPost("{id:guid}/duplicate")]
         [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<ActionResult<TripDuplicatedResponseDto>> DuplicateTrip([FromRoute] Guid id, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _duplicateTripService.DuplicateTripAsync(id, cancellationToken);
-                return StatusCode(StatusCodes.Status201Created, result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var result = await _duplicateTripService.DuplicateTripAsync(id, cancellationToken);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
     }
 }

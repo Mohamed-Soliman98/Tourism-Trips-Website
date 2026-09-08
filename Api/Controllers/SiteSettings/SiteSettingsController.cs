@@ -45,15 +45,8 @@ namespace Api.Controllers.SiteSettings
             [FromBody] CreateSiteSettingDto dto,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _createSiteSettingsService.CreateSiteSettingsAsync(dto, cancellationToken);
-                return StatusCode(StatusCodes.Status201Created, result);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _createSiteSettingsService.CreateSiteSettingsAsync(dto, cancellationToken);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         [HttpPut]

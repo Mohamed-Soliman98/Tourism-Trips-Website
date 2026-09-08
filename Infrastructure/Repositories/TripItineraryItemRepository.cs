@@ -17,6 +17,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbSet
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(item => item.Translations)
                 .Where(item => item.TripId == tripId)
                 .OrderBy(item => item.DisplayOrder)
