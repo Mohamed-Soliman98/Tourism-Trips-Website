@@ -19,6 +19,24 @@ namespace Infrastructure.Configurations
                 .IsRequired()
                 .HasMaxLength(200);
 
+            builder.HasIndex(t => t.Status);
+
+            builder.HasIndex(t => t.IsFeatured);
+
+            builder.HasIndex(t => new
+            {
+                t.Status,
+                t.DisplayOrder
+            });
+
+            builder.HasIndex(t => new
+            {
+                t.IsDeleted,
+                t.Status,
+                t.DisplayOrder
+            });
+
+
             builder.HasIndex(t => t.Slug)
                 .IsUnique();
 
