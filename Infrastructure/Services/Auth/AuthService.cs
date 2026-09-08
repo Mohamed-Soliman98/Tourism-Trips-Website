@@ -9,12 +9,14 @@ namespace Infrastructure.Services.Auth;
 public sealed class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ITokenService _tokenService;
 
-    public AuthService(UserManager<ApplicationUser> userManager,ITokenService tokenService)
+    public AuthService(UserManager<ApplicationUser> userManager,ITokenService tokenService, SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _tokenService = tokenService;
+        _signInManager = signInManager;
     }
 
     public async Task<AuthResultDto> LoginAsync(LoginDto dto,CancellationToken cancellationToken)
@@ -26,11 +28,18 @@ public sealed class AuthService : IAuthService
             throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
-        var passwordValid = await _userManager.CheckPasswordAsync(user,dto.Password);
+        var result = await _signInManager.CheckPasswordSignInAsync( user,dto.Password, lockoutOnFailure: true);
 
-        if (!passwordValid)
+        if (result.IsLockedOut)
         {
-            throw new UnauthorizedAccessException( "Invalid email or password.");
+            throw new UnauthorizedAccessException(
+                "Account temporarily locked due to multiple failed login attempts.");
+        }
+
+        if (!result.Succeeded)
+        {
+            throw new UnauthorizedAccessException(
+                "Invalid email or password.");
         }
 
         var roles = await _userManager.GetRolesAsync(user);
