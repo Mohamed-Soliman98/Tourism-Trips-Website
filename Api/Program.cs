@@ -18,6 +18,23 @@ namespace Api
 
             builder.Services.AddControllers();
 
+            // CORS 
+            var allowedOrigins = builder.Configuration
+                .GetSection("Cors:AllowedOrigins")
+                .Get<string[]>()?? Array.Empty<string>();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendPolicy", policy =>
+                {
+                    policy
+                        .WithOrigins(allowedOrigins)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
+            //
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -101,6 +118,8 @@ namespace Api
             });
 
             app.UseStaticFiles();
+
+            app.UseCors("FrontendPolicy");
 
             app.UseHttpsRedirection();
 
