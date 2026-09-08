@@ -4,6 +4,7 @@ using Infrastructure.Services.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Api.Controllers.Auth
 {
@@ -23,6 +24,7 @@ namespace Api.Controllers.Auth
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login(LoginDto dto,CancellationToken cancellationToken)
         {
             var result = await _authService.LoginAsync(dto, cancellationToken);
