@@ -92,22 +92,17 @@ namespace Api.Controllers.Trips
             return Ok(result);
         }
 
-        // PUBLIC ENDPOINT - Get Trip By ID with localization
         [HttpGet("{id:guid}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(PublicTripDetailsResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<PublicTripDetailsResponseDto>> GetTripById(
-            [FromRoute] Guid id, 
-            [FromQuery] Language? language, 
-            CancellationToken cancellationToken)
+        public async Task<ActionResult<PublicTripDetailsResponseDto>> GetTripById([FromRoute] Guid id,[FromQuery] Language? language, CancellationToken cancellationToken)
         {
             var result = await _getTripByIdService.GetTripByIdAsync(id, language, cancellationToken);
             return Ok(result);
         }
 
-        // PUBLIC ENDPOINT - Get Trip By Slug with localization
         [HttpGet("slug/{slug}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(PublicTripDetailsResponseDto), StatusCodes.Status200OK)]
@@ -128,9 +123,7 @@ namespace Api.Controllers.Trips
         [ProducesResponseType(typeof(AdminTripDetailsResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<AdminTripDetailsResponseDto>> GetAdminTripById(
-            [FromRoute] Guid id, 
-            CancellationToken cancellationToken)
+        public async Task<ActionResult<AdminTripDetailsResponseDto>> GetAdminTripById([FromRoute] Guid id, CancellationToken cancellationToken)
         {
             var result = await _getAdminTripByIdService.GetAdminTripByIdAsync(id, cancellationToken);
             return Ok(result);
