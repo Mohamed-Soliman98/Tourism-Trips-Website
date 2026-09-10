@@ -32,14 +32,12 @@ public sealed class AuthService : IAuthService
 
         if (result.IsLockedOut)
         {
-            throw new UnauthorizedAccessException(
-                "Account temporarily locked due to multiple failed login attempts.");
+            throw new UnauthorizedAccessException("Account temporarily locked due to multiple failed login attempts.");
         }
 
         if (!result.Succeeded)
         {
-            throw new UnauthorizedAccessException(
-                "Invalid email or password.");
+            throw new UnauthorizedAccessException("Invalid email or password.");
         }
 
         var roles = await _userManager.GetRolesAsync(user);

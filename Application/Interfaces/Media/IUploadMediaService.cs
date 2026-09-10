@@ -4,8 +4,6 @@ namespace Application.Interfaces.Media
 {
     public interface IUploadMediaService
     {
-        Task<MediaUploadedResponseDto> UploadAsync(
-            UploadMediaDto dto,
-            CancellationToken cancellationToken = default);
+        Task<MediaUploadedResponseDto> UploadAsync( UploadMediaDto dto,CancellationToken cancellationToken = default);
     }
 }

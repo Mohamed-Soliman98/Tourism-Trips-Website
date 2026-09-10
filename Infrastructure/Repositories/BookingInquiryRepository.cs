@@ -18,9 +18,7 @@ namespace Infrastructure.Repositories
         {
         }
 
-        public async Task<(List<BookingInquiry> Items, int TotalCount)> GetInquiriesAsync(
-            GetBookingInquiriesQueryDto query,
-            CancellationToken cancellationToken = default)
+        public async Task<(List<BookingInquiry> Items, int TotalCount)> GetInquiriesAsync( GetBookingInquiriesQueryDto query,CancellationToken cancellationToken = default)
         {
             var q = _dbSet.AsNoTracking();
 
@@ -68,9 +66,7 @@ namespace Infrastructure.Repositories
             return (items, totalCount);
         }
 
-        public async Task<BookingInquiry?> GetByIdWithTripAsync(
-            Guid id,
-            CancellationToken cancellationToken = default)
+        public async Task<BookingInquiry?> GetByIdWithTripAsync(Guid id,CancellationToken cancellationToken = default)
         {
             return await _dbSet
                 .AsNoTracking()
