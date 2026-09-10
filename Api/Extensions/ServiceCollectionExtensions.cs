@@ -52,8 +52,7 @@ namespace Api.Extensions
                 options.AddPolicy("LoginPolicy", httpContext =>
                 {
                     var ip =
-                        httpContext.Connection.RemoteIpAddress?.ToString()
-                        ?? "unknown";
+                        httpContext.Connection.RemoteIpAddress?.ToString()?? "unknown";
 
                     return RateLimitPartition.GetFixedWindowLimiter(
                         partitionKey: ip,
@@ -68,7 +67,8 @@ namespace Api.Extensions
             });
 
             // Global Exceptio Handling
-            services.AddExceptionHandler<GlobalExceptionHandler>(); services.AddProblemDetails();
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddProblemDetails();
 
             // Swagger
             services.AddEndpointsApiExplorer();

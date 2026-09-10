@@ -112,6 +112,7 @@ namespace Infrastructure.Repositories
                 .Include(t => t.Destination)
                 .Include(t => t.TourType)
                 .Include(t => t.Images.Where(i => i.IsCover))
+                .Include(t => t.Translations)
                 .OrderBy(t => t.DisplayOrder)
                 .ThenBy(t => t.Id)
                 .Skip((query.Page - 1) * query.PageSize)

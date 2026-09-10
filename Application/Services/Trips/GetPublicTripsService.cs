@@ -3,6 +3,7 @@ using Application.DTOs.Trips;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Trips;
 using Domain.Entity;
+using Domain.Enum;
 using FluentValidation;
 
 namespace Application.Services.Trips
@@ -28,7 +29,9 @@ namespace Application.Services.Trips
 
             var (items, totalCount) = await _tripRepository.GetPublicTripsAsync(query, cancellationToken);
 
-            var dtos = items.Select(MapToSummaryDto).ToList();
+            var dtos = items
+                .Select(trip => MapToSummaryDto(trip, query.Language))
+                .ToList();
 
             return new PagedResult<PublicTripSummaryDto>(
                 dtos,
@@ -38,15 +41,26 @@ namespace Application.Services.Trips
             );
         }
 
-        private static PublicTripSummaryDto MapToSummaryDto(Trip trip)
+        private static PublicTripSummaryDto MapToSummaryDto(Trip trip, Language? language)
         {
             var coverImage = trip.Images?.FirstOrDefault(i => i.IsCover);
 
+            var requestedLanguage = language ?? Language.English;
+
+            var translation =
+                trip.Translations?.FirstOrDefault(t => t.Language == requestedLanguage)
+                ?? trip.Translations?.FirstOrDefault(t => t.Language == Language.English);
+
+            if (translation == null)
+            {
+                throw new InvalidOperationException($"Data integrity error: Required translation for trip '{trip.Id}' was not found.");
+            }
+
             return new PublicTripSummaryDto(
                 Id: trip.Id,
-                Title: trip.Title,
+                Title: translation.Title,
                 Slug: trip.Slug,
-                ShortDescription: trip.ShortDescription,
+                ShortDescription: translation.ShortDescription,
                 Status: trip.Status,
                 IsFeatured: trip.IsFeatured,
                 DisplayOrder: trip.DisplayOrder,

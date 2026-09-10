@@ -25,6 +25,10 @@ namespace Application.Validators.Trips
             RuleFor(x => x.DestinationId)
                 .Must(id => id == null || id != Guid.Empty)
                 .WithMessage("DestinationId must be a valid non-empty GUID when supplied.");
+
+            RuleFor(x => x.Language)
+                .IsInEnum().When(x => x.Language.HasValue)
+                .WithMessage("Invalid language value.");
         }
     }
 }
