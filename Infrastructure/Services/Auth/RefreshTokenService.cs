@@ -1,8 +1,10 @@
 using Application.DTOs.Auth;
 using Application.Interfaces.Auth;
+using Application.Interfaces.IUnitOfWork;
 using Domain.Entitys;
 using Infrastructure.Identity;
 using Infrastructure.Persistence;
+using Infrastructure.Services.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,15 +17,23 @@ public sealed class RefreshTokenService : IRefreshTokenService
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly JwtOptions _jwtOptions;
 
     public RefreshTokenService
-         (AppDbContext context,UserManager<ApplicationUser> userManager,ITokenService tokenService,IOptions<JwtOptions> jwtOptions)
+         (AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        ITokenService tokenService,
+        IOptions<JwtOptions> jwtOptions,
+        IUnitOfWork unitOfWork
+        )
     {
         _context = context;
         _userManager = userManager;
         _tokenService = tokenService;
         _jwtOptions = jwtOptions.Value;
+        _unitOfWork = unitOfWork;
+
     }
 
     public async Task<string> CreateRefreshTokenAsync(
@@ -119,6 +129,6 @@ public sealed class RefreshTokenService : IRefreshTokenService
             token.RevokedAt = DateTime.UtcNow;
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
