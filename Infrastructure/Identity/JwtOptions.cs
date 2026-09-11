@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ namespace Infrastructure.Identity
         public string Audience { get; set; } = string.Empty;
         public string Key { get; set; } = string.Empty;
         public double ExpiryMinutes { get; set; }
+        public int RefreshTokenExpiryDays { get; set; } = 7;
 
     }
 }

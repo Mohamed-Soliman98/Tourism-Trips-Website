@@ -48,6 +48,7 @@ namespace Infrastructure.Persistence
         public DbSet<Banner> Banners => Set<Banner>();
         public DbSet<CMSSection> CMSSections => Set<CMSSection>();
         public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
 
     }

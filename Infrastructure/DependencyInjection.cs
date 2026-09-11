@@ -89,6 +89,7 @@ namespace Infrastructure
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddScoped<IAdminProfileService, AdminProfileService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IChangePasswordService, ChangePasswordService>();
