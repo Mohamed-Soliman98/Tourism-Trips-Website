@@ -15,19 +15,22 @@ namespace Api.Controllers.Auth
         private readonly IChangePasswordService _changePasswordService;
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly ILogoutService _logoutService;
+        private readonly IAddAdminService _addAdminService;
 
         public AuthController(
             IAuthService authService,
             IAdminProfileService adminProfileService,
             IChangePasswordService changePasswordService,
             IRefreshTokenService refreshTokenService,
-            ILogoutService logoutService)
+            ILogoutService logoutService,
+            IAddAdminService addAdminService)
         {
             _authService = authService;
             _adminProfileService = adminProfileService;
             _changePasswordService = changePasswordService;
             _refreshTokenService = refreshTokenService;
             _logoutService = logoutService;
+            _addAdminService = addAdminService;
         }
 
         [HttpPost("login")]
@@ -92,6 +95,20 @@ namespace Api.Controllers.Auth
             await _logoutService.LogoutAsync(cancellationToken);
 
             return NoContent();
+        }
+
+
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPost("admins")]
+        [ProducesResponseType(typeof(AdminCreatedDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> AddAdmin(CreateAdminRequestDto dto, CancellationToken cancellationToken)
+        {
+            var result = await _addAdminService.AddAdminAsync(dto, cancellationToken);
+
+            return StatusCode(StatusCodes.Status201Created, result);
         }
     }
 }

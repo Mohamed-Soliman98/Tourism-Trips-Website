@@ -61,7 +61,7 @@ public sealed class AuthService : IAuthService
 
         var (token, expiresOn) = _tokenService.GenerateToken(user.Id, user.Email!, roles);
 
-        // Extract device/session info — all nullable, never breaks login
+       
         var (deviceName, browser, operatingSystem, ipAddress) = ExtractClientInfo();
 
         var refreshToken = await _refreshTokenService.CreateRefreshTokenAsync(
