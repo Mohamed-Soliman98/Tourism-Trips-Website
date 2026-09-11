@@ -60,7 +60,7 @@ public sealed class RefreshTokenService : IRefreshTokenService
         };
 
         _context.RefreshTokens.Add(refreshToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return tokenValue;
     }
