@@ -89,6 +89,12 @@ public sealed class RefreshTokenService : IRefreshTokenService
         {
             UserId = user.Id,
             Token = newTokenValue,
+
+            DeviceName = storedToken.DeviceName,
+            Browser = storedToken.Browser,
+            OperatingSystem = storedToken.OperatingSystem,
+            IpAddress = storedToken.IpAddress,
+
             CreatedAt = DateTime.UtcNow,
             ExpiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpiryDays)
         };

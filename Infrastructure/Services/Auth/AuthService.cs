@@ -82,10 +82,7 @@ public sealed class AuthService : IAuthService
         );
     }
 
-    /// <summary>
-    /// Safely extracts client device/session information from the current HTTP context.
-    /// Returns null for any value that cannot be determined.
-    /// </summary>
+   
     private (string? deviceName, string? browser, string? operatingSystem, string? ipAddress) ExtractClientInfo()
     {
         var httpContext = _httpContextAccessor.HttpContext;

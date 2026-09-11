@@ -14,17 +14,20 @@ namespace Api.Controllers.Auth
         private readonly IAdminProfileService _adminProfileService;
         private readonly IChangePasswordService _changePasswordService;
         private readonly IRefreshTokenService _refreshTokenService;
+        private readonly ILogoutService _logoutService;
 
         public AuthController(
             IAuthService authService,
             IAdminProfileService adminProfileService,
             IChangePasswordService changePasswordService,
-            IRefreshTokenService refreshTokenService)
+            IRefreshTokenService refreshTokenService,
+            ILogoutService logoutService)
         {
             _authService = authService;
             _adminProfileService = adminProfileService;
             _changePasswordService = changePasswordService;
             _refreshTokenService = refreshTokenService;
+            _logoutService = logoutService;
         }
 
         [HttpPost("login")]
@@ -77,6 +80,18 @@ namespace Api.Controllers.Auth
             {
                 message = "Password changed successfully."
             });
+        }
+
+
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+        {
+            await _logoutService.LogoutAsync(cancellationToken);
+
+            return NoContent();
         }
     }
 }

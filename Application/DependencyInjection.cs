@@ -14,7 +14,9 @@ using Application.Interfaces.TripHighlights;
 using Application.Interfaces.TripImages;
 using Application.Interfaces.TripIncludes;
 using Application.Interfaces.TripItineraryItems;
+using Application.Interfaces.Auth;
 using Application.Interfaces.Trips;
+using Application.Services.Auth;
 using Application.Interfaces.TripTranslations;
 using Application.Interfaces.TripWhatToBrings;
 using Application.Services.BookingInquiries;
@@ -161,6 +163,8 @@ namespace Application
             services.AddScoped<IGetPublicSiteSettingsService, GetPublicSiteSettingsService>();
 
             services.AddScoped<IGetDashboardSummaryService, GetDashboardSummaryService>();
+
+            services.AddScoped<ILogoutService, LogoutService>();
 
             return services;
         }
