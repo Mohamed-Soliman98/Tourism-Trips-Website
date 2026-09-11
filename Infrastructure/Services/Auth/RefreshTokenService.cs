@@ -110,7 +110,7 @@ public sealed class RefreshTokenService : IRefreshTokenService
         };
 
         _context.RefreshTokens.Add(newRefreshToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var roles = await _userManager.GetRolesAsync(user);
         var (accessToken, _) = _tokenService.GenerateToken(user.Id, user.Email!, roles);
