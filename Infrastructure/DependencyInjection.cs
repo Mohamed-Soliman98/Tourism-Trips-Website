@@ -94,6 +94,7 @@ namespace Infrastructure
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IChangePasswordService, ChangePasswordService>();
             services.AddScoped<IAddAdminService, AddAdminService>();
+            services.AddScoped<IGetAdminsService, GetAdminsService>();
             services.AddScoped<Application.Interfaces.Storage.IFileStorageService, Infrastructure.Services.Storage.LocalFileStorageService>();
             services.AddScoped<Application.Interfaces.IUnitOfWork.IUnitOfWork, Infrastructure.Services.UnitOfWork.UnitOfWork>();
 

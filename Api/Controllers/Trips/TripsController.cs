@@ -117,7 +117,6 @@ namespace Api.Controllers.Trips
             return Ok(result);
         }
 
-        // ADMIN ENDPOINT - Get Trip By ID with ALL translations
         [HttpGet("admin/{id:guid}")]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [ProducesResponseType(typeof(AdminTripDetailsResponseDto), StatusCodes.Status200OK)]

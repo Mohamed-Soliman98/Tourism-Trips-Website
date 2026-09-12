@@ -1,4 +1,5 @@
 using Application.DTOs.Auth;
+using Application.DTOs.Common;
 using Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace Api.Controllers.Auth
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly ILogoutService _logoutService;
         private readonly IAddAdminService _addAdminService;
+        private readonly IGetAdminsService _getAdminsService;
 
         public AuthController(
             IAuthService authService,
@@ -23,7 +25,8 @@ namespace Api.Controllers.Auth
             IChangePasswordService changePasswordService,
             IRefreshTokenService refreshTokenService,
             ILogoutService logoutService,
-            IAddAdminService addAdminService)
+            IAddAdminService addAdminService,
+            IGetAdminsService getAdminsService)
         {
             _authService = authService;
             _adminProfileService = adminProfileService;
@@ -31,6 +34,7 @@ namespace Api.Controllers.Auth
             _refreshTokenService = refreshTokenService;
             _logoutService = logoutService;
             _addAdminService = addAdminService;
+            _getAdminsService = getAdminsService;
         }
 
         [HttpPost("login")]
@@ -109,6 +113,19 @@ namespace Api.Controllers.Auth
             var result = await _addAdminService.AddAdminAsync(dto, cancellationToken);
 
             return StatusCode(StatusCodes.Status201Created, result);
+        }
+
+
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpGet("all-admins")]
+        [ProducesResponseType(typeof(PagedResult<AdminCreatedDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<PagedResult<AdminListItemDto>>> GetAdmins( [FromQuery] GetAdminsQueryDto query, CancellationToken cancellationToken)
+        {
+            var result = await _getAdminsService.GetAdminsAsync(query, cancellationToken);
+
+            return Ok(result);
         }
     }
 }

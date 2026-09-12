@@ -17,7 +17,7 @@ namespace Infrastructure.Services.Auth
 
         public async Task<AdminCreatedDto> AddAdminAsync(CreateAdminRequestDto dto, CancellationToken cancellationToken)
         {
-            // Check for duplicate email
+            
             var existing = await _userManager.FindByEmailAsync(dto.Email);
 
             if (existing is not null)
