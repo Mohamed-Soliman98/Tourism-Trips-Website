@@ -31,9 +31,9 @@ namespace Api
 
             app.UseStaticFiles();
 
-            app.UseCors("FrontendPolicy");
-
             app.UseHttpsRedirection();
+
+            app.UseCors("FrontendPolicy");
 
             app.UseRateLimiter();
 
