@@ -101,7 +101,6 @@ namespace Api.Controllers.Auth
             return NoContent();
         }
 
-
         [Authorize(Roles = "SuperAdmin")]
         [HttpPost("admins")]
         [ProducesResponseType(typeof(AdminCreatedDto), StatusCodes.Status201Created)]

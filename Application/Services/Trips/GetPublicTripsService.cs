@@ -21,11 +21,9 @@ namespace Application.Services.Trips
             _validator = validator;
         }
 
-        public async Task<PagedResult<PublicTripSummaryDto>> GetPublicTripsAsync(
-            GetPublicTripsQueryDto query,
-            CancellationToken cancellationToken = default)
+        public async Task<PagedResult<PublicTripSummaryDto>> GetPublicTripsAsync(GetPublicTripsQueryDto query,CancellationToken cancellationToken = default)
         {
-            await _validator.ValidateAndThrowAsync(query, cancellationToken);
+            await _validator.ValidateAndThrowAsync(query,cancellationToken);
 
             var (items, totalCount) = await _tripRepository.GetPublicTripsAsync(query, cancellationToken);
 

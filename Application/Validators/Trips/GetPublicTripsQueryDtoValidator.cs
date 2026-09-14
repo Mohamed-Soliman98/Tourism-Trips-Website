@@ -26,6 +26,22 @@ namespace Application.Validators.Trips
                 .Must(id => id == null || id != Guid.Empty)
                 .WithMessage("DestinationId must be a valid non-empty GUID when supplied.");
 
+            RuleFor(x => x.TourTypeId)
+                .Must(id => id == null || id != Guid.Empty)
+                .WithMessage("TourTypeId must be a valid non-empty GUID when supplied.");
+
+            RuleFor(x => x.MinPrice)
+                .GreaterThanOrEqualTo(0).When(x => x.MinPrice.HasValue)
+                .WithMessage("MinPrice cannot be negative.");
+
+            RuleFor(x => x.MaxPrice)
+                .GreaterThanOrEqualTo(0).When(x => x.MaxPrice.HasValue)
+                .WithMessage("MaxPrice cannot be negative.");
+
+            RuleFor(x => x)
+                .Must(x => !x.MinPrice.HasValue || !x.MaxPrice.HasValue || x.MinPrice.Value <= x.MaxPrice.Value)
+                .WithMessage("MinPrice cannot be greater than MaxPrice.");
+
             RuleFor(x => x.Language)
                 .IsInEnum().When(x => x.Language.HasValue)
                 .WithMessage("Invalid language value.");

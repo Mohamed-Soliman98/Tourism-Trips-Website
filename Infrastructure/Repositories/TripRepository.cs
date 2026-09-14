@@ -100,9 +100,24 @@ namespace Infrastructure.Repositories
                 queryable = queryable.Where(t => t.DestinationId == query.DestinationId.Value);
             }
 
+            if (query.TourTypeId.HasValue && query.TourTypeId.Value != Guid.Empty)
+            {
+                queryable = queryable.Where(t => t.TourTypeId == query.TourTypeId.Value);
+            }
+
             if (query.IsFeatured.HasValue)
             {
                 queryable = queryable.Where(t => t.IsFeatured == query.IsFeatured.Value);
+            }
+
+            if (query.MinPrice.HasValue)
+            {
+                queryable = queryable.Where(t => t.AdultPrice >= query.MinPrice.Value);
+            }
+
+            if (query.MaxPrice.HasValue)
+            {
+                queryable = queryable.Where(t => t.AdultPrice <= query.MaxPrice.Value);
             }
 
             var totalCount = await queryable.CountAsync(cancellationToken);

@@ -7,7 +7,10 @@ namespace Application.DTOs.Trips
         public string? Search { get; set; }
         public Guid? CategoryId { get; set; }
         public Guid? DestinationId { get; set; }
+        public Guid? TourTypeId { get; set; }
         public bool? IsFeatured { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
         public Language? Language { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
